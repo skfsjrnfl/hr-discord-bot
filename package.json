@@ -1,0 +1,19 @@
+{
+  "name": "discordbot",
+  "version": "1.0.0",
+  "description": "인력사무소 봇",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon --watch \"./src/**/*.js\" --exec \"npm start\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "junghyeon1.jung",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "dependencies": {
+    "discord.js": "^14.7.1"
+  }
+}
