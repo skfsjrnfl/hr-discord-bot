@@ -1,4 +1,4 @@
-# Discord Bot Readme
+# HR-discord-bot
 This is a Discord bot built using the Discord.js library. The bot is designed to assist in organizing teams for games or other activities.
 
 ## Prerequisites
