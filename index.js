@@ -57,11 +57,11 @@ function makeTeam(message) {
       }
     });
     if (onlineUserArr.length == 0) {
-      message.reply("현재 채널 접속 인원이 없습니다.");
+      ("현재 채널 접속 인원이 없습니다.");
     } else if (onlineUserArr.length % 2 === 1) {
-      message.reply(
-        "현재 채널 접속 인원이 홀수입니다. 짝수 인원으로 맞춰주세요."
-      );
+      message.guild.channels.cache
+        .get(message.channelId)
+        .send("현재 채널 접속 인원이 홀수입니다. 짝수 인원으로 맞춰주세요.");
     } else {
       const teamCount = onlineUserArr.length / 2;
       const generateRandomKey = () => Math.floor(Math.random() * 1000);
@@ -135,8 +135,6 @@ client.on("messageCreate", (message) => {
 client.on("interactionCreate", async (interaction) => {
   if (interaction.isButton()) {
     console.log("button Clicked");
-
-    await interaction.message.delete();
     if (interaction.component.data.custom_id === "rerollBtn") {
       interaction.reply(
         `**${interaction.user.username}**님이 '리롤 버튼'을 클릭했습니다.`
@@ -151,6 +149,7 @@ client.on("interactionCreate", async (interaction) => {
         `**${interaction.user.username}**님이 '2팀 승리 버튼'을 클릭했습니다.`
       );
     }
+    await interaction.message.delete();
   }
 });
 
