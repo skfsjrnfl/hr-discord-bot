@@ -1,3 +1,4 @@
+//Requirements
 const {
   Client,
   Events,
@@ -11,139 +12,12 @@ const {
   ButtonBuilder,
   ButtonStyle,
 } = require("discord.js");
-const dbClient = require("@notionhq/client");
+const DB = require("./db_api.js");
 const { token } = require("./config-dev.json"); //commit 시 수정
-const dbID = "adc986585ab64b5693b9399334c7d935";
-const { auth, notionVersion } = require("./db_key");
-const notion = new dbClient.Client({
-  auth: auth,
-  notionVersion: notionVersion,
-});
 
-let top3List = [];
 let team1Temp = [];
 let team2Temp = [];
 let checkDelay = false;
-
-async function getAllUserData() {
-  const res = await notion.databases.query({
-    database_id: dbID,
-  });
-  return res.results;
-}
-
-async function getTop3(dir) {
-  top3List = [];
-  const res = await notion.databases.query({
-    database_id: dbID,
-    sorts: [
-      {
-        property: "power",
-        direction: dir ? "descending" : "ascending",
-      },
-    ],
-  });
-  let cnt = 0;
-  res.results.forEach((item) => {
-    if (cnt === 3) {
-      return;
-    }
-    top3List.push(item.properties);
-    cnt += 1;
-  });
-  return top3List;
-}
-
-async function addToDatabase(databaseId, username) {
-  let check = false;
-  const res = await notion.search({
-    query: username,
-  });
-  if (res.results.length === 0) {
-    check = true;
-  }
-  if (check) {
-    try {
-      await notion.pages.create({
-        parent: {
-          database_id: databaseId,
-        },
-        properties: {
-          name: {
-            type: "title",
-            title: [
-              {
-                type: "text",
-                text: {
-                  content: username,
-                },
-              },
-            ],
-          },
-          win: {
-            type: "number",
-            number: 0,
-          },
-          lose: {
-            type: "number",
-            number: 0,
-          },
-          power: {
-            type: "number",
-            number: 0,
-          },
-        },
-      });
-    } catch (error) {
-      console.error(error.body);
-    }
-    return true;
-  } else {
-    return false;
-  }
-}
-
-async function searchUser(userName) {
-  const res = await notion.search({
-    query: userName,
-  });
-  return res;
-}
-
-async function updateValue(originalData, state) {
-  switch (state) {
-    case "win":
-      await notion.pages.update({
-        page_id: originalData.results[0].id,
-        properties: {
-          win: {
-            type: "number",
-            number: (originalData.results[0].properties.win.number += 1),
-          },
-          power: {
-            type: "number",
-            number: (originalData.results[0].properties.power.number += 1),
-          },
-        },
-      });
-      break;
-    case "lose":
-      await notion.pages.update({
-        page_id: originalData.results[0].id,
-        properties: {
-          lose: {
-            type: "number",
-            number: (originalData.results[0].properties.lose.number += 1),
-          },
-          power: {
-            type: "number",
-            number: (originalData.results[0].properties.power.number -= 1),
-          },
-        },
-      });
-      break;
-  }
-}
 
 const client = new Client({
   intents: [
@@ -190,7 +64,7 @@ async function registerUser(message) {
       }
     });
     onlineUserArr.forEach(async (item) => {
-      await addToDatabase(dbID, item);
+      await DB.addToDatabase(item);
     });
   });
 }
@@ -282,7 +156,7 @@ client.on("messageCreate", async (message) => {
     }, 60000);
   }
   if (message.content == "!top3") {
-    const top3Data = await getTop3(true);
+    const top3Data = await DB.getTop3(true);
     const exampleEmbed = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle("Top 3👑")
@@ -307,7 +181,7 @@ client.on("messageCreate", async (message) => {
     message.reply("등록까지 1~2분 소요됩니다.");
   }
   if (message.content == "!showAll") {
-    const userData = await getAllUserData();
+    const userData = await DB.getAllUserData();
     let allData = [];
     userData.forEach((item) => {
       const percent =
@@ -345,12 +219,12 @@ client.on("interactionCreate", async (interaction) => {
         `**${interaction.user.username}**님이 '1팀 승리 버튼'을 클릭했습니다.`
       );
       team1Temp.forEach(async (user) => {
-        const userData1 = await searchUser(user);
-        await updateValue(userData1, "win");
+        const userData1 = await DB.searchUser(user);
+        await DB.updateValue(userData1, "win");
       });
       team2Temp.forEach(async (user) => {
-        const userData2 = await searchUser(user);
-        await updateValue(userData2, "lose");
+        const userData2 = await DB.searchUser(user);
+        await DB.updateValue(userData2, "lose");
       });
     } else if (
       interaction.component.data.custom_id === "team2winBtn" &&
@@ -360,12 +234,12 @@ client.on("interactionCreate", async (interaction) => {
         `**${interaction.user.username}**님이 '2팀 승리 버튼'을 클릭했습니다.`
       );
       team1Temp.forEach(async (user) => {
-        const userData1 = await searchUser(user);
-        await updateValue(userData1, "lose");
+        const userData1 = await DB.searchUser(user);
+        await DB.updateValue(userData1, "lose");
       });
       team2Temp.forEach(async (user) => {
-        const userData2 = await searchUser(user);
-        await updateValue(userData2, "win");
+        const userData2 = await DB.searchUser(user);
+        await DB.updateValue(userData2, "win");
       });
     }
     if (checkDelay) {
@@ -377,4 +251,6 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
+
+//Run Bot
 client.login(token);
