@@ -57,9 +57,7 @@ client.on("messageCreate", async (message) => {
         message.reply("음성 채널에 입장한 뒤 호출해주세요!")
         break;
       }
-      COMMAND.makeTeam(message).then((teamlist)=>{
-        console.log(teamlist);
-      })
+      COMMAND.makeTeam(message);
       break;
   }
   
@@ -133,7 +131,11 @@ client.on("interactionCreate", async (interaction) => {
       interaction.reply(
         `**${interaction.user.username}**님이 '리롤 버튼'을 클릭했습니다.`
       );
-      COMMAND.makeTeam(interaction);
+      if (interaction.member.voice.channel==null){
+        interaction.channel.send("음성 채널에 입장한 뒤 호출해주세요!");
+      }else{
+        COMMAND.makeTeam(interaction);
+      }
     } else if (
       interaction.component.data.custom_id === "team1winBtn" &&
       checkDelay
@@ -169,7 +171,7 @@ client.on("interactionCreate", async (interaction) => {
       await interaction.message.delete();
       checkDelay = false;
     } else {
-      interaction.reply("1분 뒤에 동작 가능합니다.");
+      interaction.channel.send("1분 뒤에 동작 가능합니다.");
     }
   }
 });
