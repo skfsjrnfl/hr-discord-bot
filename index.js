@@ -53,10 +53,13 @@ client.on("messageCreate", async (message) => {
       message.reply(`🎲${message.author.username}님의 주사위: ${COMMAND.rollDice().toString()}🎲`);
       break;
     case "!team":
-      COMMAND.makeTeam(message);
-      setTimeout(() => {
-        checkDelay = true;
-      }, 60000);
+      if (message.member.voice.channel==null){
+        message.reply("음성 채널에 입장한 뒤 호출해주세요!")
+        break;
+      }
+      COMMAND.makeTeam(message).then((teamlist)=>{
+        console.log(teamlist);
+      })
       break;
   }
   
