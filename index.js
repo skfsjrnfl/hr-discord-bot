@@ -17,6 +17,28 @@ const COMMAND = require("./command.js");
 const { token } = require("./config-dev.json"); //commit 시 수정
 
 let checkDelay = false;
+let teamAName=[];
+let teamBName=[];
+let teamAID=[];
+let teamBID=[];
+let btnRow = new ActionRowBuilder().setComponents(
+  new ButtonBuilder()
+    .setCustomId("team1winBtn")
+    .setLabel("1️⃣팀 승리")
+    .setStyle(ButtonStyle.Primary),
+  new ButtonBuilder()
+    .setCustomId("team2winBtn")
+    .setLabel("2️⃣팀 승리")
+    .setStyle(ButtonStyle.Primary),
+  new ButtonBuilder()
+    .setCustomId("rerollBtn")
+    .setLabel("🎲리롤🎲")
+    .setStyle(ButtonStyle.Danger),
+  new ButtonBuilder()
+    .setCustomId("startBtn")
+    .setLabel("🏃‍♂️시작🏃‍♂️")
+    .setStyle(ButtonStyle.Success),
+);
 
 const client = new Client({
   intents: [
@@ -57,15 +79,27 @@ client.on("messageCreate", async (message) => {
         message.reply("음성 채널에 입장한 뒤 호출해주세요!")
         break;
       }
-      COMMAND.makeTeam(message);
+      [teamAName, teamBName, teamAID, teamBID] = await COMMAND.makeTeam(message);
+      const exampleEmbed = new EmbedBuilder()
+      .setColor(0x0099ff)
+      .setTitle("팀 구성 결과🚀")
+      .setURL("https://youtu.be/k6FmEwkD6SQ")
+      .addFields(
+        { name: "1️⃣팀", value: teamAName.join(", ") },
+        { name: "2️⃣팀", value: teamBName.join(", ") }
+      );
+      setTimeout(() => {
+        checkDelay = true;
+      }, 60000);
+      message.channel.send({ embeds: [exampleEmbed], components: [btnRow] });
       break;
   }
   
   if (message.content == "!help") {
     const explain = new EmbedBuilder()
       .setColor(0x0099ff)
-      .setTitle("팀 구성 결과🚀")
-      .setURL("https://discord.js.org/")
+      .setTitle("명령어 목록📋")
+      .setURL("https://youtu.be/k6FmEwkD6SQ")
       .addFields(
         {
           name: "!team",
@@ -125,6 +159,8 @@ client.on("messageCreate", async (message) => {
   }
 });
 
+//팀 창 따로 만들고 리롤도 창띄우게
+//메세지 삭제 되게 
 client.on("interactionCreate", async (interaction) => {
   if (interaction.isButton()) {
     if (interaction.component.data.custom_id === "rerollBtn") {
@@ -167,11 +203,12 @@ client.on("interactionCreate", async (interaction) => {
         await DB.updateValue(userData2, "win");
       });
     }
+
     if (checkDelay) {
       await interaction.message.delete();
       checkDelay = false;
     } else {
-      interaction.channel.send("1분 뒤에 동작 가능합니다.");
+      interaction.channel.send(`${interaction.user.username}야 그만눌러라...`);
     }
   }
 });
