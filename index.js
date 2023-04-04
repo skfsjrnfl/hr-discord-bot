@@ -21,6 +21,7 @@ let teamAName=[];
 let teamBName=[];
 let teamAID=[];
 let teamBID=[];
+let waitingCh;
 let btnRow = new ActionRowBuilder().setComponents(
   new ButtonBuilder()
     .setCustomId("team1winBtn")
@@ -52,6 +53,21 @@ const client = new Client({
   partials: [Partials.Channel],
 });
 
+TeamWindow = function(channel){
+  const exampleEmbed = new EmbedBuilder()
+  .setColor(0x0099ff)
+  .setTitle("팀 구성 결과🚀")
+  .setURL("https://youtu.be/k6FmEwkD6SQ")
+  .addFields(
+    { name: "1️⃣팀", value: teamAName.join(", ") },
+    { name: "2️⃣팀", value: teamBName.join(", ") }
+  );
+  setTimeout(() => {
+    checkDelay = true;
+  }, 60000);
+  channel.send({ embeds: [exampleEmbed], components: [btnRow] });
+}
+
 client.once(Events.ClientReady, (c) => {
   console.log(`Ready! Logged in as ${c.user.tag}`);
 });
@@ -79,19 +95,9 @@ client.on("messageCreate", async (message) => {
         message.reply("음성 채널에 입장한 뒤 호출해주세요!")
         break;
       }
+      waitingCh=message.member.voice.channel;
       [teamAName, teamBName, teamAID, teamBID] = await COMMAND.makeTeam(message);
-      const exampleEmbed = new EmbedBuilder()
-      .setColor(0x0099ff)
-      .setTitle("팀 구성 결과🚀")
-      .setURL("https://youtu.be/k6FmEwkD6SQ")
-      .addFields(
-        { name: "1️⃣팀", value: teamAName.join(", ") },
-        { name: "2️⃣팀", value: teamBName.join(", ") }
-      );
-      setTimeout(() => {
-        checkDelay = true;
-      }, 60000);
-      message.channel.send({ embeds: [exampleEmbed], components: [btnRow] });
+      TeamWindow(message.channel);
       break;
   }
   
@@ -159,18 +165,22 @@ client.on("messageCreate", async (message) => {
   }
 });
 
-//팀 창 따로 만들고 리롤도 창띄우게
-//메세지 삭제 되게 
 client.on("interactionCreate", async (interaction) => {
   if (interaction.isButton()) {
     if (interaction.component.data.custom_id === "rerollBtn") {
       interaction.reply(
         `**${interaction.user.username}**님이 '리롤 버튼'을 클릭했습니다.`
       );
-      if (interaction.member.voice.channel==null){
-        interaction.channel.send("음성 채널에 입장한 뒤 호출해주세요!");
+      if (interaction.member.voice.channel !== waitingCh){
+        interaction.channel.send("내전 대기자만 누를 수 있습니다!");
       }else{
-        COMMAND.makeTeam(interaction);
+        [teamAName, teamBName, teamAID, teamBID] = await COMMAND.makeTeam(interaction);
+        await TeamWindow(interaction.channel);
+        await interaction.message.delete();
+      }
+    } else if (interaction.component.data.custom_id === "startBtn"){
+      if (interaction.user.voice.channel !== waitingCh){
+        interaction.channel.send("내전 대기자만 누를 수 있습니다!");
       }
     } else if (
       interaction.component.data.custom_id === "team1winBtn" &&
@@ -204,12 +214,12 @@ client.on("interactionCreate", async (interaction) => {
       });
     }
 
-    if (checkDelay) {
-      await interaction.message.delete();
-      checkDelay = false;
-    } else {
-      interaction.channel.send(`${interaction.user.username}야 그만눌러라...`);
-    }
+    // if (checkDelay) {
+    //   await interaction.message.delete();
+    //   checkDelay = false;
+    // } else {
+    //   interaction.channel.send(`${interaction.user.username}야 그만눌러라...`);
+    // }
   }
 });
 
