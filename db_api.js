@@ -131,38 +131,3 @@ exports.updateValue = async function(originalData, state) {
     break;
   }
 }
-
-// async function updateValue(originalData, state) {
-// switch (state) {
-//     case "win":
-//     await notion.pages.update({
-//         page_id: originalData.results[0].id,
-//         properties: {
-//         win: {
-//             type: "number",
-//             number: (originalData.results[0].properties.win.number += 1),
-//         },
-//         power: {
-//             type: "number",
-//             number: (originalData.results[0].properties.power.number += 1),
-//         },
-//         },
-//     });
-//     break;
-//     case "lose":
-//     await notion.pages.update({
-//         page_id: originalData.results[0].id,
-//         properties: {
-//         lose: {
-//             type: "number",
-//             number: (originalData.results[0].properties.lose.number += 1),
-//         },
-//         power: {
-//             type: "number",
-//             number: (originalData.results[0].properties.power.number -= 1),
-//         },
-//         },
-//     });
-//     break;
-// }
-// }
