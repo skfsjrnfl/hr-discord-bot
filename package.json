@@ -14,7 +14,8 @@
     "nodemon": "^2.0.15"
   },
   "dependencies": {
+    "@notionhq/client": "^1.0.1",
     "discord.js": "^14.8.0",
-    "@notionhq/client": "^1.0.1"
+    "node-html-to-image": "^3.3.0"
   }
 }

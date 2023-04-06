@@ -11,16 +11,19 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  AttachmentBuilder,
 } = require("discord.js");
 const DB = require("./db_api.js");
 const COMMAND = require("./command.js");
 const { token } = require("./config-dev.json"); //commit 시 수정
+const { helpPhrase } = require("./assets/helpPhrase.js");
+const nodeHtmlToImage = require("node-html-to-image");
 
 let checkDelay = false;
-let teamAName=[];
-let teamBName=[];
-let teamAID=[];
-let teamBID=[];
+let teamAName = [];
+let teamBName = [];
+let teamAID = [];
+let teamBID = [];
 let waitingCh;
 let btnRow = new ActionRowBuilder().setComponents(
   new ButtonBuilder()
@@ -38,7 +41,7 @@ let btnRow = new ActionRowBuilder().setComponents(
   new ButtonBuilder()
     .setCustomId("startBtn")
     .setLabel("🏃‍♂️시작🏃‍♂️")
-    .setStyle(ButtonStyle.Success),
+    .setStyle(ButtonStyle.Success)
 );
 
 const client = new Client({
@@ -53,20 +56,20 @@ const client = new Client({
   partials: [Partials.Channel],
 });
 
-TeamWindow = function(channel){
+TeamWindow = function (channel) {
   const exampleEmbed = new EmbedBuilder()
-  .setColor(0x0099ff)
-  .setTitle("팀 구성 결과🚀")
-  .setURL("https://youtu.be/k6FmEwkD6SQ")
-  .addFields(
-    { name: "1️⃣팀", value: teamAName.join(", ") },
-    { name: "2️⃣팀", value: teamBName.join(", ") }
-  );
+    .setColor(0x0099ff)
+    .setTitle("팀 구성 결과🚀")
+    .setURL("https://youtu.be/k6FmEwkD6SQ")
+    .addFields(
+      { name: "1️⃣팀", value: teamAName.join(", ") },
+      { name: "2️⃣팀", value: teamBName.join(", ") }
+    );
   setTimeout(() => {
     checkDelay = true;
   }, 60000);
   channel.send({ embeds: [exampleEmbed], components: [btnRow] });
-}
+};
 
 client.once(Events.ClientReady, (c) => {
   console.log(`Ready! Logged in as ${c.user.tag}`);
@@ -80,7 +83,7 @@ client.on("messageCreate", async (message) => {
   if (message.author.username === "kwonSM") {
     message.react("💩");
   }
-  switch(message.content){
+  switch (message.content) {
     case "!5vs5":
       message.reply("@everyone");
       break;
@@ -88,39 +91,43 @@ client.on("messageCreate", async (message) => {
       message.reply("pong");
       break;
     case "!dice":
-      message.reply(`🎲${message.author.username}님의 주사위: ${COMMAND.rollDice().toString()}🎲`);
+      message.reply(
+        `🎲${
+          message.author.username
+        }님의 주사위: ${COMMAND.rollDice().toString()}🎲`
+      );
       break;
     case "!team":
-      if (message.member.voice.channel==null){
-        message.reply("음성 채널에 입장한 뒤 호출해주세요!")
+      if (message.member.voice.channel == null) {
+        message.reply("음성 채널에 입장한 뒤 호출해주세요!");
         break;
       }
-      waitingCh=message.member.voice.channel;
-      teamdata=await COMMAND.makeTeam(message);
-      if (teamdata!=null){
+      waitingCh = message.member.voice.channel;
+      teamdata = await COMMAND.makeTeam(message);
+      if (teamdata != null) {
         [teamAName, teamBName, teamAID, teamBID] = teamdata;
         TeamWindow(message.channel);
-      }else{
-        message.channel.send("현재 채널 접속 인원이 홀수입니다. 짝수 인원으로 맞춰주세요!");
+      } else {
+        message.channel.send(
+          "현재 채널 접속 인원이 홀수입니다. 짝수 인원으로 맞춰주세요!"
+        );
       }
-      
+
       break;
   }
-  
+
   if (message.content == "!help") {
-    const explain = new EmbedBuilder()
-      .setColor(0x0099ff)
-      .setTitle("명령어 목록📋")
-      .setURL("https://youtu.be/k6FmEwkD6SQ")
-      .addFields(
-        {
-          name: "!team",
-          value: "음성 채널에 접속해 있는 인원들로 팀구성\n 짝수 인원만 가능",
-        },
-        { name: "!dice", value: "1~99까지 나오는 주사위" },
-        { name: "!5vs5", value: "5대5 소집령" }
-      );
-    message.reply({ embeds: [explain] });
+    const help = await nodeHtmlToImage({
+      html: helpPhrase,
+      quality: 50,
+      type: "png",
+      puppeteerArgs: {
+        args: ["--no-sandbox"],
+      },
+      encoding: "buffer",
+    });
+    const helpImage = new AttachmentBuilder(help);
+    message.channel.send({ files: [helpImage] });
   }
   if (message.content == "!top3") {
     const top3Data = await DB.getTop3(true);
@@ -177,24 +184,25 @@ client.on("interactionCreate", async (interaction) => {
       interaction.reply(
         `**${interaction.user.username}**님이 '리롤 버튼'을 클릭했습니다.`
       );
-      if (interaction.member.voice.channel !== waitingCh){
+      if (interaction.member.voice.channel !== waitingCh) {
         interaction.channel.send("내전 대기자만 누를 수 있습니다!");
-      }else{
-        teamdata=await COMMAND.makeTeam(interaction);
-        if (teamdata!=null){
+      } else {
+        teamdata = await COMMAND.makeTeam(interaction);
+        if (teamdata != null) {
           await interaction.message.delete();
           [teamAName, teamBName, teamAID, teamBID] = teamdata;
           await TeamWindow(interaction.channel);
-        }else{
-          interaction.channel.send("현재 채널 접속 인원이 홀수입니다. 짝수 인원으로 맞춰주세요!");
+        } else {
+          interaction.channel.send(
+            "현재 채널 접속 인원이 홀수입니다. 짝수 인원으로 맞춰주세요!"
+          );
         }
-        
       }
-    } else if (interaction.component.data.custom_id === "startBtn"){
+    } else if (interaction.component.data.custom_id === "startBtn") {
       // if (interaction.member.voice.channel !== waitingCh){
       //   interaction.reply("내전 대기자만 누를 수 있습니다!");
       // }else{
-        interaction.reply("만드는 중...");
+      interaction.reply("만드는 중...");
       //}
     } else if (
       interaction.component.data.custom_id === "team1winBtn" &&
@@ -236,7 +244,6 @@ client.on("interactionCreate", async (interaction) => {
     // }
   }
 });
-
 
 //Run Bot
 client.login(token);
