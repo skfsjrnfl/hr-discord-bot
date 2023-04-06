@@ -96,8 +96,14 @@ client.on("messageCreate", async (message) => {
         break;
       }
       waitingCh=message.member.voice.channel;
-      [teamAName, teamBName, teamAID, teamBID] = await COMMAND.makeTeam(message);
-      TeamWindow(message.channel);
+      teamdata=await COMMAND.makeTeam(message);
+      if (teamdata!=null){
+        [teamAName, teamBName, teamAID, teamBID] = teamdata;
+        TeamWindow(message.channel);
+      }else{
+        message.channel.send("현재 채널 접속 인원이 홀수입니다. 짝수 인원으로 맞춰주세요!");
+      }
+      
       break;
   }
   
@@ -174,14 +180,22 @@ client.on("interactionCreate", async (interaction) => {
       if (interaction.member.voice.channel !== waitingCh){
         interaction.channel.send("내전 대기자만 누를 수 있습니다!");
       }else{
-        [teamAName, teamBName, teamAID, teamBID] = await COMMAND.makeTeam(interaction);
-        await TeamWindow(interaction.channel);
-        await interaction.message.delete();
+        teamdata=await COMMAND.makeTeam(interaction);
+        if (teamdata!=null){
+          await interaction.message.delete();
+          [teamAName, teamBName, teamAID, teamBID] = teamdata;
+          await TeamWindow(interaction.channel);
+        }else{
+          interaction.channel.send("현재 채널 접속 인원이 홀수입니다. 짝수 인원으로 맞춰주세요!");
+        }
+        
       }
     } else if (interaction.component.data.custom_id === "startBtn"){
-      if (interaction.user.voice.channel !== waitingCh){
-        interaction.channel.send("내전 대기자만 누를 수 있습니다!");
-      }
+      // if (interaction.member.voice.channel !== waitingCh){
+      //   interaction.reply("내전 대기자만 누를 수 있습니다!");
+      // }else{
+        interaction.reply("만드는 중...");
+      //}
     } else if (
       interaction.component.data.custom_id === "team1winBtn" &&
       checkDelay
@@ -189,11 +203,11 @@ client.on("interactionCreate", async (interaction) => {
       interaction.reply(
         `**${interaction.user.username}**님이 '1팀 승리 버튼'을 클릭했습니다.`
       );
-      team1Temp.forEach(async (user) => {
+      teamAID.forEach(async (user) => {
         const userData1 = await DB.searchUser(user);
         await DB.updateValue(userData1, "win");
       });
-      team2Temp.forEach(async (user) => {
+      teamBID.forEach(async (user) => {
         const userData2 = await DB.searchUser(user);
         await DB.updateValue(userData2, "lose");
       });
@@ -204,11 +218,11 @@ client.on("interactionCreate", async (interaction) => {
       interaction.reply(
         `**${interaction.user.username}**님이 '2팀 승리 버튼'을 클릭했습니다.`
       );
-      team1Temp.forEach(async (user) => {
+      teamAID.forEach(async (user) => {
         const userData1 = await DB.searchUser(user);
         await DB.updateValue(userData1, "lose");
       });
-      team2Temp.forEach(async (user) => {
+      teamBID.forEach(async (user) => {
         const userData2 = await DB.searchUser(user);
         await DB.updateValue(userData2, "win");
       });
