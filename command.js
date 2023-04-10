@@ -63,3 +63,29 @@ exports.makeTeam = async function (message) {
     return [a_name, b_name, a_id, b_id];
   }
 };
+
+exports.findEmptyChannel = function (interaction){
+  channel_list=[];
+  interaction.guild.channels.cache.forEach((k)=>{
+    // channel type 2: voice
+    if (k.type==2){
+      if (k.members.size==0){
+        channel_list.push(k);
+        return channel_list;
+      }
+    }
+  }
+  );
+  return channel_list;
+};
+
+exports.moveTeam = async function (waiting, teamid, channel){
+  waiting.members.forEach((k)=>{
+    if (teamid.includes(k.id)){
+      k.voice.setChannel(channel);
+    }
+  }
+  );
+};
+
+

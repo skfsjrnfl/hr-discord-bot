@@ -23,6 +23,7 @@ let teamBName = [];
 let teamAID = [];
 let teamBID = [];
 let waitingCh;
+let subCh;
 let btnRow = new ActionRowBuilder().setComponents(
   new ButtonBuilder()
     .setCustomId("team1winBtn")
@@ -231,15 +232,19 @@ client.on("interactionCreate", async (interaction) => {
         }
       }
     } else if (interaction.component.data.custom_id === "startBtn") {
-      // if (interaction.member.voice.channel !== waitingCh){
-      //   interaction.reply("내전 대기자만 누를 수 있습니다!");
-      // }else{
-      interaction.reply("만드는 중...");
-      //}
-    } else if (
-      interaction.component.data.custom_id === "team1winBtn" &&
-      checkDelay
-    ) {
+       if (interaction.member.voice.channel !== waitingCh){
+         interaction.reply("내전 대기자만 누를 수 있습니다!");
+       }else{
+        channellist=COMMAND.findEmptyChannel(interaction);
+        if (channellist.size<1){
+          interaction.reply("빈 음성 채널이 필요해요!");
+        }else{
+          subCh=channellist[0];
+          COMMAND.moveTeam(waitingCh,teamAID,subCh);
+          interaction.reply("내전을 시작합니다~🥊");
+        }
+      }
+    } else if (interaction.component.data.custom_id === "team1winBtn") {
       interaction.reply(
         `**${interaction.user.username}**님이 '1팀 승리 버튼'을 클릭했습니다.`
       );
