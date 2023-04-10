@@ -84,7 +84,9 @@ client.on("messageCreate", async (message) => {
   }
   switch (message.content) {
     case "!5vs5":
-      message.reply("@everyone");
+      reply=await message.reply("@everyone 내전 하실 분~");
+      reply.react("🙋‍♂️");
+      reply.react("🙅‍♂️");
       break;
     case "!ping":
       message.reply("pong");
@@ -255,16 +257,6 @@ client.on("interactionCreate", async (interaction) => {
         `**${interaction.user.username}**님이 '2팀 승리 버튼'을 클릭했습니다.`
       );
       COMMAND.checkWin(teamBName,teamAName);
-      // teamAName.forEach(async (user) => {
-      //   const userData1 = await DB.searchUser(user);
-      //   console.log(userData1);
-      //   //await DB.updateValue(userData1, "lose");
-      // });
-      // teamBName.forEach(async (user) => {
-      //   const userData2 = await DB.searchUser(user);
-      //   console.log(userData2);
-      //   //await DB.updateValue(userData2, "win");
-      // });
     }
 
     // if (checkDelay) {
