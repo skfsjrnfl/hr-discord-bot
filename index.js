@@ -249,22 +249,22 @@ client.on("interactionCreate", async (interaction) => {
       interaction.reply(
         `**${interaction.user.username}**님이 '1팀 승리 버튼'을 클릭했습니다.`
       );
-      COMMAND.checkWin(teamAID,teamBID);
-    } else if (
-      interaction.component.data.custom_id === "team2winBtn" &&
-      checkDelay
-    ) {
+      COMMAND.checkWin(teamAName,teamBName);
+    } else if (interaction.component.data.custom_id === "team2winBtn") {
       interaction.reply(
         `**${interaction.user.username}**님이 '2팀 승리 버튼'을 클릭했습니다.`
       );
-      teamAID.forEach(async (user) => {
-        const userData1 = await DB.searchUser(user);
-        await DB.updateValue(userData1, "lose");
-      });
-      teamBID.forEach(async (user) => {
-        const userData2 = await DB.searchUser(user);
-        await DB.updateValue(userData2, "win");
-      });
+      COMMAND.checkWin(teamBName,teamAName);
+      // teamAName.forEach(async (user) => {
+      //   const userData1 = await DB.searchUser(user);
+      //   console.log(userData1);
+      //   //await DB.updateValue(userData1, "lose");
+      // });
+      // teamBName.forEach(async (user) => {
+      //   const userData2 = await DB.searchUser(user);
+      //   console.log(userData2);
+      //   //await DB.updateValue(userData2, "win");
+      // });
     }
 
     // if (checkDelay) {

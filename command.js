@@ -88,4 +88,17 @@ exports.moveTeam = async function (waiting, teamid, channel){
   );
 };
 
+exports.checkWin = async function (winner, loser){
+  winner.forEach(async (name)=>{
+    //name win lose power streak
+    userData1 = await DB.searchUser(name);
+    DB.updateValue(userData1,"win");
+  })
+  loser.forEach(async (name)=>{
+    //name win lose power streak
+    userData2 = await DB.searchUser(name);
+    DB.updateValue(userData2,"lose");
+  })
+};
+
 

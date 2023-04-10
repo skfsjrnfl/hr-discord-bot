@@ -100,40 +100,72 @@ exports.addToDatabase = async function (username) {
 };
 
 exports.searchUser = async function (userName) {
-  const res = await notion.search({
-    query: userName,
-  });
-  return res;
+  const res = await notion.databases.query(
+    {
+      database_id: dbID,
+      "filter":{
+        "property": "name",
+        "rich_text":{
+          "equals":userName
+        }
+      }
+    }
+  );
+  return res.results[0];
 };
 
 exports.updateValue = async function (originalData, state) {
+  streak=originalData.properties.streak.number;
+  bonus=1;
   switch (state) {
     case "win":
+      if (2<=streak && streak<=3){
+        bonus = 2;
+      }else if (4==streak){
+        bonus = 3;
+      }else if (5<=streak){
+        bonus = 4;
+      }
       await notion.pages.update({
-        page_id: originalData.results[0].id,
+        page_id: originalData.id,
         properties: {
           win: {
             type: "number",
-            number: (originalData.results[0].properties.win.number += 1),
+            number: (originalData.properties.win.number += 1),
           },
           power: {
             type: "number",
-            number: (originalData.results[0].properties.power.number += 1),
+            number: (originalData.properties.power.number += 1),
+          },
+          streak:{
+            type: "number",
+            number: (streak > 0 ? streak + 1 : 1),
           },
         },
       });
       break;
     case "lose":
+      if (-3<=streak && streak<=-2){
+        bonus = 2;
+      }else if (streak==-4){
+        bonus = 3;
+      }else if (streak<=-5){
+        bonus = 4;
+      }
       await notion.pages.update({
-        page_id: originalData.results[0].id,
+        page_id: originalData.id,
         properties: {
           lose: {
             type: "number",
-            number: (originalData.results[0].properties.lose.number += 1),
+            number: (originalData.properties.lose.number += 1),
           },
           power: {
             type: "number",
-            number: (originalData.results[0].properties.power.number -= 1),
+            number: (originalData.properties.power.number -= 1),
+          },
+          streak:{
+            type: "number",
+            number: (streak > 0 ? -1 : streak-1),
           },
         },
       });
