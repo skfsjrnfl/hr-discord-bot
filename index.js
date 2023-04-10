@@ -241,21 +241,15 @@ client.on("interactionCreate", async (interaction) => {
         }else{
           subCh=channellist[0];
           COMMAND.moveTeam(waitingCh,teamAID,subCh);
-          interaction.reply("내전을 시작합니다~🥊");
+          await interaction.channel.send({ files:[{attachment: "./assets/opening.gif"}]});
+          interaction.reply("내전을 시작~ 하겠습니다~~🥊");
         }
       }
     } else if (interaction.component.data.custom_id === "team1winBtn") {
       interaction.reply(
         `**${interaction.user.username}**님이 '1팀 승리 버튼'을 클릭했습니다.`
       );
-      teamAID.forEach(async (user) => {
-        const userData1 = await DB.searchUser(user);
-        await DB.updateValue(userData1, "win");
-      });
-      teamBID.forEach(async (user) => {
-        const userData2 = await DB.searchUser(user);
-        await DB.updateValue(userData2, "lose");
-      });
+      COMMAND.checkWin(teamAID,teamBID);
     } else if (
       interaction.component.data.custom_id === "team2winBtn" &&
       checkDelay
