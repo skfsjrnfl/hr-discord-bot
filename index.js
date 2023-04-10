@@ -23,6 +23,7 @@ let teamBName = [];
 let teamAID = [];
 let teamBID = [];
 let waitingCh;
+let subCh;
 let btnRow = new ActionRowBuilder().setComponents(
   new ButtonBuilder()
     .setCustomId("team1winBtn")
@@ -83,7 +84,9 @@ client.on("messageCreate", async (message) => {
   }
   switch (message.content) {
     case "!5vs5":
-      message.reply("@everyone");
+      reply=await message.reply("@everyone 내전 하실 분~");
+      reply.react("🙋‍♂️");
+      reply.react("🙅‍♂️");
       break;
     case "!ping":
       message.reply("pong");
@@ -110,13 +113,10 @@ client.on("messageCreate", async (message) => {
           "현재 채널 접속 인원이 홀수입니다. 짝수 인원으로 맞춰주세요!"
         );
       }
-
       break;
-  }
-
-  if (message.content == "!help") {
-    const iconImage = new AttachmentBuilder("./assets/icon.png");
-    const helpEmbed = new EmbedBuilder()
+    case "!help":
+      const iconImage = new AttachmentBuilder("./assets/icon.png");
+      const helpEmbed = new EmbedBuilder()
       .setImage("https://images.app.goo.gl/CPgEwFff2o6DdLa87")
       .setColor("#10B4D1")
       .setTitle("👋안녕하세요! 🤖HR Office bot 입니다.")
@@ -164,7 +164,8 @@ client.on("messageCreate", async (message) => {
         value: "name에 해당하는 인원을 표시합니다. (개발 중)",
       })
       .setFooter({ text: "🖥️Developed by. Junghyeon Jung, skfsjrnfl" });
-    message.channel.send({ embeds: [helpEmbed], files: [iconImage] });
+      message.channel.send({ embeds: [helpEmbed], files: [iconImage] });
+      break;
   }
   if (message.content == "!top3") {
     const top3Data = await DB.getTop3(true);
@@ -200,16 +201,13 @@ client.on("messageCreate", async (message) => {
           (item.properties.lose.number + item.properties.win.number)) *
         100;
       allData.push({
-        name: `이름: ${item.properties.name.title[0].text.content}`,
-        value: `승: ${item.properties.win.number} 
-          패: ${item.properties.lose.number} 
-          파워: ${item.properties.power.number} 
-          승률: ${percent}`,
+        name: `${item.properties.name.title[0].text.content}`,
+        value: `${item.properties.win.number} - ${item.properties.lose.number} / ${percent}% / ${item.properties.power.number} LP`,
       });
     });
     const exampleEmbed = new EmbedBuilder()
       .setColor(0x0099ff)
-      .setTitle("All user")
+      .setTitle("User name / Win - Lose / Winning Percentage / LoL Power")
       .addFields(allData);
     message.reply({ embeds: [exampleEmbed] });
   }
@@ -236,41 +234,29 @@ client.on("interactionCreate", async (interaction) => {
         }
       }
     } else if (interaction.component.data.custom_id === "startBtn") {
-      // if (interaction.member.voice.channel !== waitingCh){
-      //   interaction.reply("내전 대기자만 누를 수 있습니다!");
-      // }else{
-      interaction.reply("만드는 중...");
-      //}
-    } else if (
-      interaction.component.data.custom_id === "team1winBtn" &&
-      checkDelay
-    ) {
+       if (interaction.member.voice.channel !== waitingCh){
+         interaction.reply("내전 대기자만 누를 수 있습니다!");
+       }else{
+        channellist=COMMAND.findEmptyChannel(interaction);
+        if (channellist.size<1){
+          interaction.reply("빈 음성 채널이 필요해요!");
+        }else{
+          subCh=channellist[0];
+          COMMAND.moveTeam(waitingCh,teamAID,subCh);
+          await interaction.channel.send({ files:[{attachment: "./assets/opening.gif"}]});
+          interaction.reply("내전을 시작~ 하겠습니다~~🥊");
+        }
+      }
+    } else if (interaction.component.data.custom_id === "team1winBtn") {
       interaction.reply(
         `**${interaction.user.username}**님이 '1팀 승리 버튼'을 클릭했습니다.`
       );
-      teamAID.forEach(async (user) => {
-        const userData1 = await DB.searchUser(user);
-        await DB.updateValue(userData1, "win");
-      });
-      teamBID.forEach(async (user) => {
-        const userData2 = await DB.searchUser(user);
-        await DB.updateValue(userData2, "lose");
-      });
-    } else if (
-      interaction.component.data.custom_id === "team2winBtn" &&
-      checkDelay
-    ) {
+      COMMAND.checkWin(teamAName,teamBName);
+    } else if (interaction.component.data.custom_id === "team2winBtn") {
       interaction.reply(
         `**${interaction.user.username}**님이 '2팀 승리 버튼'을 클릭했습니다.`
       );
-      teamAID.forEach(async (user) => {
-        const userData1 = await DB.searchUser(user);
-        await DB.updateValue(userData1, "lose");
-      });
-      teamBID.forEach(async (user) => {
-        const userData2 = await DB.searchUser(user);
-        await DB.updateValue(userData2, "win");
-      });
+      COMMAND.checkWin(teamBName,teamAName);
     }
 
     // if (checkDelay) {
