@@ -110,13 +110,10 @@ client.on("messageCreate", async (message) => {
           "현재 채널 접속 인원이 홀수입니다. 짝수 인원으로 맞춰주세요!"
         );
       }
-
       break;
-  }
-
-  if (message.content == "!help") {
-    const iconImage = new AttachmentBuilder("./assets/icon.png");
-    const helpEmbed = new EmbedBuilder()
+    case "!help":
+      const iconImage = new AttachmentBuilder("./assets/icon.png");
+      const helpEmbed = new EmbedBuilder()
       .setImage("https://images.app.goo.gl/CPgEwFff2o6DdLa87")
       .setColor("#10B4D1")
       .setTitle("👋안녕하세요! 🤖HR Office bot 입니다.")
@@ -164,7 +161,8 @@ client.on("messageCreate", async (message) => {
         value: "name에 해당하는 인원을 표시합니다. (개발 중)",
       })
       .setFooter({ text: "🖥️Developed by. Junghyeon Jung, skfsjrnfl" });
-    message.channel.send({ embeds: [helpEmbed], files: [iconImage] });
+      message.channel.send({ embeds: [helpEmbed], files: [iconImage] });
+      break;
   }
   if (message.content == "!top3") {
     const top3Data = await DB.getTop3(true);
@@ -200,16 +198,13 @@ client.on("messageCreate", async (message) => {
           (item.properties.lose.number + item.properties.win.number)) *
         100;
       allData.push({
-        name: `이름: ${item.properties.name.title[0].text.content}`,
-        value: `승: ${item.properties.win.number} 
-          패: ${item.properties.lose.number} 
-          파워: ${item.properties.power.number} 
-          승률: ${percent}`,
+        name: `${item.properties.name.title[0].text.content}`,
+        value: `${item.properties.win.number} - ${item.properties.lose.number} / ${percent}% / ${item.properties.power.number} LP`,
       });
     });
     const exampleEmbed = new EmbedBuilder()
       .setColor(0x0099ff)
-      .setTitle("All user")
+      .setTitle("User name / Win - Lose / Winning Percentage / LoL Power")
       .addFields(allData);
     message.reply({ embeds: [exampleEmbed] });
   }

@@ -14,6 +14,12 @@ var exports = (module.exports = {});
 exports.getAllUserData = async function () {
   const res = await notion.databases.query({
     database_id: dbID,
+    sorts:[
+      {
+        property: "name",
+        direction: "ascending",
+      },
+    ],
   });
   return res.results;
 };
