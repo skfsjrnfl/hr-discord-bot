@@ -172,3 +172,23 @@ exports.updateValue = async function (originalData, state) {
       break;
   }
 };
+
+exports.calculTeamValue = async function (teamNamelist) {
+  var teampower=0;
+  for (i=0;i<teamNamelist.length;i++){
+    const res = await notion.databases.query(
+      {
+        database_id: dbID,
+        "filter":{
+          "property": "name",
+          "rich_text":{
+            "equals":teamNamelist[i]
+          }
+        }
+      }
+    );
+    teampower+=res.results[0].properties.power.number;
+    //console.log(res.results[0].properties.power.number);
+  }
+  return teampower;
+};

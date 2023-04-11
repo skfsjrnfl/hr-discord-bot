@@ -22,6 +22,8 @@ let teamAName = [];
 let teamBName = [];
 let teamAID = [];
 let teamBID = [];
+let teamAPower;
+let teamBPower;
 let waitingCh;
 let subCh;
 let btnRow = new ActionRowBuilder().setComponents(
@@ -43,6 +45,17 @@ let btnRow = new ActionRowBuilder().setComponents(
     .setStyle(ButtonStyle.Success)
 );
 
+let btnRowStart = new ActionRowBuilder().setComponents(
+  new ButtonBuilder()
+    .setCustomId("team1winBtn")
+    .setLabel("1️⃣팀 승리")
+    .setStyle(ButtonStyle.Primary),
+  new ButtonBuilder()
+    .setCustomId("team2winBtn")
+    .setLabel("2️⃣팀 승리")
+    .setStyle(ButtonStyle.Primary),
+);
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -61,8 +74,10 @@ TeamWindow = function (channel) {
     .setTitle("팀 구성 결과🚀")
     .setURL("https://youtu.be/k6FmEwkD6SQ")
     .addFields(
-      { name: "1️⃣팀", value: teamAName.join(", ") },
-      { name: "2️⃣팀", value: teamBName.join(", ") }
+      { name: "1️⃣팀", value: teamAName.join(", "),},
+    //{ name: "LP 합계", value: teamAPower},
+      { name: "2️⃣팀", value: teamBName.join(", "), },
+    //{name: "LP 합계", value: teamBPower},
     );
   setTimeout(() => {
     checkDelay = true;
@@ -107,6 +122,8 @@ client.on("messageCreate", async (message) => {
       teamdata = await COMMAND.makeTeam(message);
       if (teamdata != null) {
         [teamAName, teamBName, teamAID, teamBID] = teamdata;
+        //teamAPower=await DB.calculTeamValue(teamAName);
+        //teamBPower=await DB.calculTeamValue(teamBName);
         TeamWindow(message.channel);
       } else {
         message.channel.send(
@@ -251,11 +268,13 @@ client.on("interactionCreate", async (interaction) => {
       interaction.reply(
         `**${interaction.user.username}**님이 '1팀 승리 버튼'을 클릭했습니다.`
       );
+      COMMAND.moveTeam(subCh,teamAID,waitingCh);
       COMMAND.checkWin(teamAName,teamBName);
     } else if (interaction.component.data.custom_id === "team2winBtn") {
       interaction.reply(
         `**${interaction.user.username}**님이 '2팀 승리 버튼'을 클릭했습니다.`
       );
+      COMMAND.moveTeam(waitingCh,teamBID,subChh);
       COMMAND.checkWin(teamBName,teamAName);
     }
 
