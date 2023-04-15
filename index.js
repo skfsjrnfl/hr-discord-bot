@@ -74,10 +74,11 @@ TeamWindow = function (channel) {
     .setTitle("팀 구성 결과🚀")
     .setURL("https://youtu.be/k6FmEwkD6SQ")
     .addFields(
-      { name: "1️⃣팀", value: teamAName.join(", "),},
-    //{ name: "LP 합계", value: teamAPower},
-      { name: "2️⃣팀", value: teamBName.join(", "), },
-    //{name: "LP 합계", value: teamBPower},
+      { name: "1️⃣팀", value: teamAName.join(", "),inline:true},
+      { name: "LP 합계", value: `${teamAPower}`, inline:true},
+      { name: '\u200b', value: '\u200b'},
+      { name: "2️⃣팀", value: teamBName.join(", "), inline:true},
+      { name: "LP 합계", value: `${teamBPower}`,inline:true},
     );
   setTimeout(() => {
     checkDelay = true;
@@ -122,8 +123,10 @@ client.on("messageCreate", async (message) => {
       teamdata = await COMMAND.makeTeam(message);
       if (teamdata != null) {
         [teamAName, teamBName, teamAID, teamBID] = teamdata;
-        //teamAPower=await DB.calculTeamValue(teamAName);
-        //teamBPower=await DB.calculTeamValue(teamBName);
+        teamAPower=await DB.calculTeamValue(teamAID, teamAName);
+        //console.log(`result:${teamAPower}`);
+        teamBPower=await DB.calculTeamValue(teamBID, teamBName);
+        //console.log(`result:${teamBPower}`);
         TeamWindow(message.channel);
       } else {
         message.channel.send(
@@ -182,6 +185,9 @@ client.on("messageCreate", async (message) => {
       })
       .setFooter({ text: "🖥️Developed by. Junghyeon Jung, skfsjrnfl" });
       message.channel.send({ embeds: [helpEmbed], files: [iconImage] });
+      break;
+    case "!test":
+      DB.insertNewUser(message.author);
       break;
   }
   if (message.content == "!top3") {

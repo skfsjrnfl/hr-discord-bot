@@ -1,7 +1,10 @@
 //Requirements
+const sqlite3 = require('sqlite3');
+
 const dbClient = require("@notionhq/client");
 const dbID = "adc986585ab64b5693b9399334c7d935";
 const { auth, notionVersion } = require("./db_key");
+
 const notion = new dbClient.Client({
   auth: auth,
   notionVersion: notionVersion,
@@ -173,22 +176,52 @@ exports.updateValue = async function (originalData, state) {
   }
 };
 
-exports.calculTeamValue = async function (teamNamelist) {
-  var teampower=0;
-  for (i=0;i<teamNamelist.length;i++){
-    const res = await notion.databases.query(
-      {
-        database_id: dbID,
-        "filter":{
-          "property": "name",
-          "rich_text":{
-            "equals":teamNamelist[i]
-          }
-        }
+
+insertNewUser = function(id, name){
+  const db=new sqlite3.Database('./hr_db.db',sqlite3.OPEN_READWRITE,function(err){
+    if (err){
+      console.log(err.message);
+    }
+  });
+  const query = `INSERT INTO user(ID,NAME,WIN,LOSE,POWER,STREAK) VALUES(${id},"${name}",0,0,0,0)`;
+  db.run(query, function(err){
+    if (err){
+      console.log(err.message);
+    }
+  });
+  db.close()
+}
+
+getUser =async function(id,name){
+  const db=new sqlite3.Database('./hr_db.db',sqlite3.OPEN_READWRITE,function(err){
+    if (err){
+      console.log(err.message);
+    }
+  });
+  const find_query=`SELECT * from user WHERE ID=${id}`;
+  const user_data = await new Promise(resolve => {
+    db.get(find_query, (err,rows) =>{
+      if (err){
+        resolve({error: 'error message'});
+      }else{
+        resolve(rows);
       }
-    );
-    teampower+=res.results[0].properties.power.number;
-    //console.log(res.results[0].properties.power.number);
+    })
+  });
+  db.close();
+  if (user_data != undefined){
+    return user_data;
+  }else{
+    insertNewUser(id,name);
+    return {"ID": id, "NAME": name, "WIN":0,"LOSE":0,"POWER":1000,"STREAK": 0};
+  }
+};
+
+exports.calculTeamValue =async function(teamIDs, teamNames){
+  var teampower=0;
+  for (i=0;i<teamIDs.length;i++){
+    user_data=await getUser(teamIDs[i],teamNames[i]);
+    teampower+=user_data["POWER"];
   }
   return teampower;
-};
+}
