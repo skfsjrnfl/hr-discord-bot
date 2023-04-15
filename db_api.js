@@ -13,96 +13,6 @@ let top3List = [];
 var exports = (module.exports = {});
 
 //Function
-exports.getTop3 = async function (dir) {
-  top3List = [];
-  const res = await notion.databases.query({
-    database_id: dbID,
-    sorts: [
-      {
-        property: "power",
-        direction: dir ? "descending" : "ascending",
-      },
-    ],
-  });
-  let cnt = 0;
-  res.results.forEach((item) => {
-    if (cnt === 3) {
-      return;
-    }
-    top3List.push(item.properties);
-    cnt += 1;
-  });
-  return top3List;
-};
-
-exports.addToDatabase = async function (username) {
-  let check = false;
-  const res = await notion.search({
-    query: username,
-  });
-  if (res.results.length === 0) {
-    check = true;
-  }
-  if (check) {
-    try {
-      await notion.pages.create({
-        parent: {
-          database_id: dbID,
-        },
-        properties: {
-          name: {
-            type: "title",
-            title: [
-              {
-                type: "text",
-                text: {
-                  content: username,
-                },
-              },
-            ],
-          },
-          win: {
-            type: "number",
-            number: 0,
-          },
-          lose: {
-            type: "number",
-            number: 0,
-          },
-          power: {
-            type: "number",
-            number: 0,
-          },
-          streak: {
-            type: "number",
-            number: 0,
-          },
-        },
-      });
-    } catch (error) {
-      console.error(error.body);
-    }
-    return true;
-  } else {
-    return false;
-  }
-};
-
-exports.searchUser = async function (userName) {
-  const res = await notion.databases.query(
-    {
-      database_id: dbID,
-      "filter":{
-        "property": "name",
-        "rich_text":{
-          "equals":userName
-        }
-      }
-    }
-  );
-  return res.results[0];
-};
-
 exports.updateValue = async function (originalData, state) {
   streak=originalData.properties.streak.number;
   bonus=1;
@@ -229,5 +139,58 @@ exports.getAllUserData = async function () {
     })
   });
   db.close();
-  return user_data;
+  let allData = [];
+  user_data.forEach((item) => {
+    const percent =
+      (item["WIN"] / (item["LOSE"] + item["WIN"])) * 100;
+    allData.push({
+      name: `${item["NAME"]}`,
+      value: `${item["WIN"]} - ${item["LOSE"]} / ${percent}% / ${item["POWER"]} LP`,
+    });
+  });
+  allData.sort(function(a,b){
+    if (a.name>b.name) return 1;
+    else return -1;
+  })
+  return allData;
+};
+
+exports.getTop3 = async function (dir) {
+  const db=new sqlite3.Database('./hr_db.db',sqlite3.OPEN_READWRITE,function(err){
+    if (err){
+      console.log(err.message);
+    }
+  });
+  const find_query=`SELECT * from user`;
+  const user_data = await new Promise(resolve => {
+    db.all(find_query, (err,rows) =>{
+      if (err){
+        resolve({error: 'error message'});
+      }else{
+        resolve(rows);
+      }
+    })
+  });
+  user_data.sort(function(a,b){
+    if (a["POWER"]<b["POWER"]){
+      return 1;
+    }else{
+      return -1;
+    }
+  });
+  top3List=[];
+  console.log(user_data.length);
+  if (user_data.length<3){
+    for (i=0;i<user_data.length;i++){
+      top3List.push(user_data[i]);
+    }
+    for (i=0;i<3-user_data.length;i++){
+      top3List.push({
+        "NAME" : "no one",
+        "POWER": 0
+      });
+    }
+  }
+  db.close();
+  return top3List;
 };

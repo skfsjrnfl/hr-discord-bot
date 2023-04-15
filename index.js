@@ -197,16 +197,16 @@ client.on("messageCreate", async (message) => {
       .setTitle("Top 3👑")
       .addFields(
         {
-          name: "1️⃣등",
-          value: `${top3Data[0].name.title[0].text.content} ${top3Data[0].power.number} 롤투력`,
+          name: "🥇 1️⃣등",
+          value: `${top3Data[0]["NAME"]} ${top3Data[0]["POWER"]} 롤투력`,
         },
         {
-          name: "2️⃣등",
-          value: `${top3Data[1].name.title[0].text.content} ${top3Data[1].power.number} 롤투력`,
+          name: "🥈 2️⃣등 🫘",
+          value: `${top3Data[1]["NAME"]} ${top3Data[1]["POWER"]} 롤투력`,
         },
         {
-          name: "3️⃣등",
-          value: `${top3Data[2].name.title[0].text.content} ${top3Data[2].power.number} 롤투력`,
+          name: "🥉 3️⃣등",
+          value: `${top3Data[2]["NAME"]} ${top3Data[2]["POWER"]} 롤투력`,
         }
       );
     message.reply({ embeds: [exampleEmbed] });
@@ -216,20 +216,19 @@ client.on("messageCreate", async (message) => {
     message.reply("등록까지 1~2분 소요됩니다.");
   }
   if (message.content == "!showAll") {
-    const userData = await DB.getAllUserData();
-    let allData = [];
-    userData.forEach((item) => {
-      const percent =
-        (item["WIN"] / (item["LOSE"] + item["WIN"])) * 100;
-      allData.push({
-        name: `${item["NAME"]}`,
-        value: `${item["WIN"]} - ${item["LOSE"]} / ${percent}% / ${item["POWER"]} LP`,
-      });
-    });
-    userData.sort(function(a,b){
-      if (a["NAME"]>b["NAME"]) return 1;
-      else return -1;
-    })
+    const allData = await DB.getAllUserData();
+    // userData.forEach((item) => {
+    //   const percent =
+    //     (item["WIN"] / (item["LOSE"] + item["WIN"])) * 100;
+    //   allData.push({
+    //     name: `${item["NAME"]}`,
+    //     value: `${item["WIN"]} - ${item["LOSE"]} / ${percent}% / ${item["POWER"]} LP`,
+    //   });
+    // });
+    // userData.sort(function(a,b){
+    //   if (a["NAME"]>b["NAME"]) return 1;
+    //   else return -1;
+    // })
     const exampleEmbed = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle("User name / Win - Lose / Winning Percentage / LoL Power")
