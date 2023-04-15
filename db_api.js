@@ -1,6 +1,5 @@
 //Requirements
 const sqlite3 = require('sqlite3');
-
 const dbClient = require("@notionhq/client");
 const dbID = "adc986585ab64b5693b9399334c7d935";
 const { auth, notionVersion } = require("./db_key");
@@ -14,19 +13,6 @@ let top3List = [];
 var exports = (module.exports = {});
 
 //Function
-exports.getAllUserData = async function () {
-  const res = await notion.databases.query({
-    database_id: dbID,
-    sorts:[
-      {
-        property: "name",
-        direction: "ascending",
-      },
-    ],
-  });
-  return res.results;
-};
-
 exports.getTop3 = async function (dir) {
   top3List = [];
   const res = await notion.databases.query({
@@ -225,3 +211,23 @@ exports.calculTeamValue =async function(teamIDs, teamNames){
   }
   return teampower;
 }
+
+exports.getAllUserData = async function () {
+  const db=new sqlite3.Database('./hr_db.db',sqlite3.OPEN_READWRITE,function(err){
+    if (err){
+      console.log(err.message);
+    }
+  });
+  const find_query=`SELECT * from user`;
+  const user_data = await new Promise(resolve => {
+    db.all(find_query, (err,rows) =>{
+      if (err){
+        resolve({error: 'error message'});
+      }else{
+        resolve(rows);
+      }
+    })
+  });
+  db.close();
+  return user_data;
+};

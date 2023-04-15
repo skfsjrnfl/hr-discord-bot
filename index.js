@@ -220,14 +220,16 @@ client.on("messageCreate", async (message) => {
     let allData = [];
     userData.forEach((item) => {
       const percent =
-        (item.properties.win.number /
-          (item.properties.lose.number + item.properties.win.number)) *
-        100;
+        (item["WIN"] / (item["LOSE"] + item["WIN"])) * 100;
       allData.push({
-        name: `${item.properties.name.title[0].text.content}`,
-        value: `${item.properties.win.number} - ${item.properties.lose.number} / ${percent}% / ${item.properties.power.number} LP`,
+        name: `${item["NAME"]}`,
+        value: `${item["WIN"]} - ${item["LOSE"]} / ${percent}% / ${item["POWER"]} LP`,
       });
     });
+    userData.sort(function(a,b){
+      if (a["NAME"]>b["NAME"]) return 1;
+      else return -1;
+    })
     const exampleEmbed = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle("User name / Win - Lose / Winning Percentage / LoL Power")
