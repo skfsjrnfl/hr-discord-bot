@@ -13,63 +13,129 @@ let top3List = [];
 var exports = (module.exports = {});
 
 //Function
-exports.updateValue = async function (originalData, state) {
-  streak=originalData.properties.streak.number;
-  bonus=1;
-  switch (state) {
-    case "win":
-      if (2<=streak && streak<=3){
-        bonus = 2;
-      }else if (4==streak){
-        bonus = 3;
-      }else if (5<=streak){
-        bonus = 4;
-      }
-      await notion.pages.update({
-        page_id: originalData.id,
-        properties: {
-          win: {
-            type: "number",
-            number: (originalData.properties.win.number += 1),
-          },
-          power: {
-            type: "number",
-            number: (originalData.properties.power.number += 1),
-          },
-          streak:{
-            type: "number",
-            number: (streak > 0 ? streak + 1 : 1),
-          },
-        },
+//need to test
+exports.updateValue = async function (teamid, state) {
+  const db=new sqlite3.Database('./hr_db.db',sqlite3.OPEN_READWRITE,function(err){
+    if (err){
+      console.log(err.message);
+    }
+  });
+  db.serialize(()=>{
+    teamid.forEach(async (id)=>{
+      const find_query=`SELECT * from user WHERE ID=${id}`;
+      const user_data = await new Promise(resolve => {
+        db.get(find_query, (err,rows) =>{
+          if (err){
+            resolve({error: 'error message'});
+          }else{
+            resolve(rows);
+          }
+        })
       });
-      break;
-    case "lose":
-      if (-3<=streak && streak<=-2){
-        bonus = 2;
-      }else if (streak==-4){
-        bonus = 3;
-      }else if (streak<=-5){
-        bonus = 4;
+      console.log(user_data);
+      bonus=1;
+      next_win=user_data["WIN"];
+      next_lose=user_data["LOSE"];
+      next_power=user_data["POWER"];
+      next_streak=user_data["STREAK"];
+      if (state=="win"){
+        next_win++;
+        if (next_streak<0){
+          next_streak=1;
+        }else{
+          next_streak++;
+        }
+        if (2<=next_streak && next_streak<=3){
+          bonus = 2;
+        }else if (next_streak==4){
+          bonus = 3;
+        }else if (next_streak>=5){
+          bonus = 4;
+        }
+        next_power+=bonus;
+      }else{
+        next_lose++;
+        if (next_streak>0){
+          next_streak=-1;
+        }else{
+          next_streak--;
+        }
+        if (-3<=next_streak && next_streak<=-2){
+          bonus = 2;
+        }else if (next_streak==-4){
+          bonus = 3;
+        }else if (next_streak<=-5){
+          bonus = 4;
+        }
+        next_power-=bonus;
       }
-      await notion.pages.update({
-        page_id: originalData.id,
-        properties: {
-          lose: {
-            type: "number",
-            number: (originalData.properties.lose.number += 1),
-          },
-          power: {
-            type: "number",
-            number: (originalData.properties.power.number -= 1),
-          },
-          streak:{
-            type: "number",
-            number: (streak > 0 ? -1 : streak-1),
-          },
-        },
+      const update_query=`UPDATE user SET WIN =${next_win}, LOSE =${next_lose}, POWER =${next_power}, STREAK =${next_streak}  WHERE ID=${id}`;
+      db.run(update_query, function(err){
+        if (err){
+          console.log(err.message);
+        }
       });
-      break;
-  }
+    });
+  });
+  // teamid.forEach(async (id)=>{
+  //   const find_query=`SELECT * from user WHERE ID=${id}`;
+  //   db.serialize(async function(){
+  //     const user_data = await new Promise(resolve => {
+  //       db.get(find_query, (err,rows) =>{
+  //         if (err){
+  //           resolve({error: 'error message'});
+  //         }else{
+  //           resolve(rows);
+  //         }
+  //       })
+  //     });
+  //     console.log(user_data);
+  //     let bonus=1;
+  //     let next_win=user_data["WIN"];
+  //     let next_lose=user_data["LOSE"];
+  //     let next_power=user_data["POWER"];
+  //     let next_streak=user_data["STREAK"];
+  //     if (state=="win"){
+  //       next_win++;
+  //       if (next_streak<0){
+  //         next_streak=1;
+  //       }else{
+  //         next_streak++;
+  //       }
+  //       if (2<=next_streak && next_streak<=3){
+  //         bonus = 2;
+  //       }else if (next_streak==4){
+  //         bonus = 3;
+  //       }else if (next_streak>=5){
+  //         bonus = 4;
+  //       }
+  //       next_power+=bonus;
+  //     }else{
+  //       next_lose++;
+  //       if (next_streak>0){
+  //         next_streak=-1;
+  //       }else{
+  //         next_streak--;
+  //       }
+  //       if (-3<=next_streak && next_streak<=-2){
+  //         bonus = 2;
+  //       }else if (next_streak==-4){
+  //         bonus = 3;
+  //       }else if (next_streak<=-5){
+  //         bonus = 4;
+  //       }
+  //       next_power-=bonus;
+  //     }
+  //     const update_query=`UPDATE user SET WIN =${next_win}, LOSE =${next_lose}, POWER =${next_power}, STREAK =${next_streak}  WHERE ID=${id}`;
+  //     db.run(update_query, function(err){
+  //       if (err){
+  //         console.log(err.message);
+  //       }
+  //     });
+  //   });
+
+  // });
+  db.close();
 };
 
 
