@@ -217,18 +217,6 @@ client.on("messageCreate", async (message) => {
   }
   if (message.content == "!showAll") {
     const allData = await DB.getAllUserData();
-    // userData.forEach((item) => {
-    //   const percent =
-    //     (item["WIN"] / (item["LOSE"] + item["WIN"])) * 100;
-    //   allData.push({
-    //     name: `${item["NAME"]}`,
-    //     value: `${item["WIN"]} - ${item["LOSE"]} / ${percent}% / ${item["POWER"]} LP`,
-    //   });
-    // });
-    // userData.sort(function(a,b){
-    //   if (a["NAME"]>b["NAME"]) return 1;
-    //   else return -1;
-    // })
     const exampleEmbed = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle("User name / Win - Lose / Winning Percentage / LoL Power")
@@ -276,13 +264,13 @@ client.on("interactionCreate", async (interaction) => {
         `**${interaction.user.username}**님이 '1팀 승리 버튼'을 클릭했습니다.`
       );
       COMMAND.moveTeam(subCh,teamAID,waitingCh);
-      COMMAND.checkWin(teamAName,teamBName);
+      COMMAND.checkWin(teamAID,teamBID);
     } else if (interaction.component.data.custom_id === "team2winBtn") {
       interaction.reply(
         `**${interaction.user.username}**님이 '2팀 승리 버튼'을 클릭했습니다.`
       );
       COMMAND.moveTeam(waitingCh,teamBID,subChh);
-      COMMAND.checkWin(teamBName,teamAName);
+      COMMAND.checkWin(teamBID,teamAID);
     }
 
     // if (checkDelay) {
