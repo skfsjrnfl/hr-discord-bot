@@ -74,10 +74,11 @@ TeamWindow = function (channel) {
     .setTitle("팀 구성 결과🚀")
     .setURL("https://youtu.be/k6FmEwkD6SQ")
     .addFields(
-      { name: "1️⃣팀", value: teamAName.join(", "),},
-    //{ name: "LP 합계", value: teamAPower},
-      { name: "2️⃣팀", value: teamBName.join(", "), },
-    //{name: "LP 합계", value: teamBPower},
+      { name: "1️⃣팀", value: teamAName.join(", "),inline:true},
+      { name: "LP 합계", value: `${teamAPower}`, inline:true},
+      { name: '\u200b', value: '\u200b'},
+      { name: "2️⃣팀", value: teamBName.join(", "), inline:true},
+      { name: "LP 합계", value: `${teamBPower}`,inline:true},
     );
   setTimeout(() => {
     checkDelay = true;
@@ -122,8 +123,10 @@ client.on("messageCreate", async (message) => {
       teamdata = await COMMAND.makeTeam(message);
       if (teamdata != null) {
         [teamAName, teamBName, teamAID, teamBID] = teamdata;
-        //teamAPower=await DB.calculTeamValue(teamAName);
-        //teamBPower=await DB.calculTeamValue(teamBName);
+        teamAPower=await DB.calculTeamValue(teamAID, teamAName);
+        //console.log(`result:${teamAPower}`);
+        teamBPower=await DB.calculTeamValue(teamBID, teamBName);
+        //console.log(`result:${teamBPower}`);
         TeamWindow(message.channel);
       } else {
         message.channel.send(
@@ -183,6 +186,9 @@ client.on("messageCreate", async (message) => {
       .setFooter({ text: "🖥️Developed by. Junghyeon Jung, skfsjrnfl" });
       message.channel.send({ embeds: [helpEmbed], files: [iconImage] });
       break;
+    case "!test":
+      DB.insertNewUser(message.author);
+      break;
   }
   if (message.content == "!top3") {
     const top3Data = await DB.getTop3(true);
@@ -191,16 +197,16 @@ client.on("messageCreate", async (message) => {
       .setTitle("Top 3👑")
       .addFields(
         {
-          name: "1️⃣등",
-          value: `${top3Data[0].name.title[0].text.content} ${top3Data[0].power.number} 롤투력`,
+          name: "🥇 1️⃣등",
+          value: `${top3Data[0]["NAME"]} ${top3Data[0]["POWER"]} 롤투력`,
         },
         {
-          name: "2️⃣등",
-          value: `${top3Data[1].name.title[0].text.content} ${top3Data[1].power.number} 롤투력`,
+          name: "🥈 2️⃣등 🫘",
+          value: `${top3Data[1]["NAME"]} ${top3Data[1]["POWER"]} 롤투력`,
         },
         {
-          name: "3️⃣등",
-          value: `${top3Data[2].name.title[0].text.content} ${top3Data[2].power.number} 롤투력`,
+          name: "🥉 3️⃣등",
+          value: `${top3Data[2]["NAME"]} ${top3Data[2]["POWER"]} 롤투력`,
         }
       );
     message.reply({ embeds: [exampleEmbed] });
@@ -210,18 +216,7 @@ client.on("messageCreate", async (message) => {
     message.reply("등록까지 1~2분 소요됩니다.");
   }
   if (message.content == "!showAll") {
-    const userData = await DB.getAllUserData();
-    let allData = [];
-    userData.forEach((item) => {
-      const percent =
-        (item.properties.win.number /
-          (item.properties.lose.number + item.properties.win.number)) *
-        100;
-      allData.push({
-        name: `${item.properties.name.title[0].text.content}`,
-        value: `${item.properties.win.number} - ${item.properties.lose.number} / ${percent}% / ${item.properties.power.number} LP`,
-      });
-    });
+    const allData = await DB.getAllUserData();
     const exampleEmbed = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle("User name / Win - Lose / Winning Percentage / LoL Power")
@@ -269,13 +264,13 @@ client.on("interactionCreate", async (interaction) => {
         `**${interaction.user.username}**님이 '1팀 승리 버튼'을 클릭했습니다.`
       );
       COMMAND.moveTeam(subCh,teamAID,waitingCh);
-      COMMAND.checkWin(teamAName,teamBName);
+      COMMAND.checkWin(teamAID,teamBID);
     } else if (interaction.component.data.custom_id === "team2winBtn") {
       interaction.reply(
         `**${interaction.user.username}**님이 '2팀 승리 버튼'을 클릭했습니다.`
       );
       COMMAND.moveTeam(waitingCh,teamBID,subChh);
-      COMMAND.checkWin(teamBName,teamAName);
+      COMMAND.checkWin(teamBID,teamAID);
     }
 
     // if (checkDelay) {
