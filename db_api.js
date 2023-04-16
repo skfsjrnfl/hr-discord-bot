@@ -20,121 +20,65 @@ exports.updateValue = async function (teamid, state) {
       console.log(err.message);
     }
   });
-  db.serialize(()=>{
-    teamid.forEach(async (id)=>{
-      const find_query=`SELECT * from user WHERE ID=${id}`;
-      const user_data = await new Promise(resolve => {
-        db.get(find_query, (err,rows) =>{
-          if (err){
-            resolve({error: 'error message'});
-          }else{
-            resolve(rows);
-          }
-        })
-      });
-      console.log(user_data);
-      bonus=1;
-      next_win=user_data["WIN"];
-      next_lose=user_data["LOSE"];
-      next_power=user_data["POWER"];
-      next_streak=user_data["STREAK"];
-      if (state=="win"){
-        next_win++;
-        if (next_streak<0){
-          next_streak=1;
-        }else{
-          next_streak++;
-        }
-        if (2<=next_streak && next_streak<=3){
-          bonus = 2;
-        }else if (next_streak==4){
-          bonus = 3;
-        }else if (next_streak>=5){
-          bonus = 4;
-        }
-        next_power+=bonus;
-      }else{
-        next_lose++;
-        if (next_streak>0){
-          next_streak=-1;
-        }else{
-          next_streak--;
-        }
-        if (-3<=next_streak && next_streak<=-2){
-          bonus = 2;
-        }else if (next_streak==-4){
-          bonus = 3;
-        }else if (next_streak<=-5){
-          bonus = 4;
-        }
-        next_power-=bonus;
-      }
-      const update_query=`UPDATE user SET WIN =${next_win}, LOSE =${next_lose}, POWER =${next_power}, STREAK =${next_streak}  WHERE ID=${id}`;
-      db.run(update_query, function(err){
+  let ori_data=[];
+  for (let i=0;i<teamid.length;i++){
+    const find_query=`SELECT * from user WHERE ID=${teamid[i]}`;
+    const user_data = await new Promise(resolve => {
+      db.get(find_query, (err,rows) =>{
         if (err){
-          console.log(err.message);
+          resolve({error: 'error message'});
+        }else{
+          resolve(rows);
         }
-      });
+      })
     });
-  });
-  // teamid.forEach(async (id)=>{
-  //   const find_query=`SELECT * from user WHERE ID=${id}`;
-  //   db.serialize(async function(){
-  //     const user_data = await new Promise(resolve => {
-  //       db.get(find_query, (err,rows) =>{
-  //         if (err){
-  //           resolve({error: 'error message'});
-  //         }else{
-  //           resolve(rows);
-  //         }
-  //       })
-  //     });
-  //     console.log(user_data);
-  //     let bonus=1;
-  //     let next_win=user_data["WIN"];
-  //     let next_lose=user_data["LOSE"];
-  //     let next_power=user_data["POWER"];
-  //     let next_streak=user_data["STREAK"];
-  //     if (state=="win"){
-  //       next_win++;
-  //       if (next_streak<0){
-  //         next_streak=1;
-  //       }else{
-  //         next_streak++;
-  //       }
-  //       if (2<=next_streak && next_streak<=3){
-  //         bonus = 2;
-  //       }else if (next_streak==4){
-  //         bonus = 3;
-  //       }else if (next_streak>=5){
-  //         bonus = 4;
-  //       }
-  //       next_power+=bonus;
-  //     }else{
-  //       next_lose++;
-  //       if (next_streak>0){
-  //         next_streak=-1;
-  //       }else{
-  //         next_streak--;
-  //       }
-  //       if (-3<=next_streak && next_streak<=-2){
-  //         bonus = 2;
-  //       }else if (next_streak==-4){
-  //         bonus = 3;
-  //       }else if (next_streak<=-5){
-  //         bonus = 4;
-  //       }
-  //       next_power-=bonus;
-  //     }
-  //     const update_query=`UPDATE user SET WIN =${next_win}, LOSE =${next_lose}, POWER =${next_power}, STREAK =${next_streak}  WHERE ID=${id}`;
-  //     db.run(update_query, function(err){
-  //       if (err){
-  //         console.log(err.message);
-  //       }
-  //     });
-  //   });
+    ori_data.push(user_data);
+  }
 
-  // });
+  for (let i=0;i<teamid.length;i++){
+    bonus=1;
+    next_win=ori_data[i]["WIN"];
+    next_lose=ori_data[i]["LOSE"];
+    next_power=ori_data[i]["POWER"];
+    next_streak=ori_data[i]["STREAK"];
+    if (state=="win"){
+      next_win++;
+      if (next_streak<0){
+        next_streak=1;
+      }else{
+        next_streak++;
+      }
+      if (2<=next_streak && next_streak<=3){
+        bonus = 2;
+      }else if (next_streak==4){
+        bonus = 3;
+      }else if (next_streak>=5){
+        bonus = 4;
+      }
+      next_power+=bonus;
+    }else{
+    next_lose++;
+      if (next_streak>0){
+        next_streak=-1;
+      }else{
+        next_streak--;
+      }
+      if (-3<=next_streak && next_streak<=-2){
+        bonus = 2;
+      }else if (next_streak==-4){
+        bonus = 3;
+      }else if (next_streak<=-5){
+        bonus = 4;
+      }
+      next_power-=bonus;
+    }
+    const update_query=`UPDATE user SET WIN =${next_win}, LOSE =${next_lose}, POWER =${next_power}, STREAK =${next_streak}  WHERE ID=${teamid[i]}`;
+    db.run(update_query, function(err){
+      if (err){
+        console.log(err.message);
+      }
+    });
+  }
   db.close();
 };
 
