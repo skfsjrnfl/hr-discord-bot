@@ -1,13 +1,5 @@
 //Requirements
 const sqlite3 = require('sqlite3');
-const dbClient = require("@notionhq/client");
-const dbID = "adc986585ab64b5693b9399334c7d935";
-const { auth, notionVersion } = require("./db_key");
-
-const notion = new dbClient.Client({
-  auth: auth,
-  notionVersion: notionVersion,
-});
 let top3List = [];
 
 var exports = (module.exports = {});
