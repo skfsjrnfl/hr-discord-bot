@@ -145,6 +145,7 @@ exports.getAllUserData = async function () {
   user_data.forEach((item) => {
     const percent =
       (item["WIN"] / (item["LOSE"] + item["WIN"])) * 100;
+    percent.toFixed(1);
     allData.push({
       name: `${item["NAME"]}`,
       value: `${item["WIN"]} - ${item["LOSE"]} / ${percent}% / ${item["POWER"]} LP`,

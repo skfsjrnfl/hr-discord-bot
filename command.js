@@ -69,9 +69,11 @@ exports.findEmptyChannel = function (interaction){
   interaction.guild.channels.cache.forEach((k)=>{
     // channel type 2: voice
     if (k.type==2){
-      if (k.members.size==0){
-        channel_list.push(k);
-        return channel_list;
+      if (k.id!=interaction.guild.afkChannelId){
+        if (k.members.size==0){
+          channel_list.push(k);
+          return channel_list;
+        }
       }
     }
   }
