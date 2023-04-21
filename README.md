@@ -1,41 +1,55 @@
 # HR-discord-bot
-This is a Discord bot built using the Discord.js library. The bot is designed to assist in organizing teams for games or other activities.
 
-## Prerequisites
-Node.js
-Discord account with permission to create bots
-Discord application with bot created and token obtained
-## Installation
-1. Clone the repository
-2. Run npm install to install the required dependencies
-3/ Create a config-dev.json file in the root directory of the project with the following format:
+<img src="https://user-images.githubusercontent.com/68142773/231139544-672da8d4-28ca-4ca9-b757-82a8d3019ff2.png"/>
+
+## Introduction
+Discord.js 라이브러리를 이용해 개발한 Discord 봇입니다. 이 봇은 게임과 같이 팀을 구성해 대결할 때 팀을 구성하거나, 결과를 기록하는 것을 돕기 위해 개발되었습니다.
+
+## Developers
+| 정정현 | 김도환 |
+|:---:|:---:|
+|<img width="180" src="https://user-images.githubusercontent.com/68142773/231140917-7af68456-d97e-4dd8-bf03-cf4ac9a2f5c9.png"/>|<img width="180" src="https://user-images.githubusercontent.com/68142773/231140998-843f9e71-5618-4b0d-b5f6-2e07d28ba101.png"/>|
+| **GitHub**: [luckjjh](https://github.com/luckjjh) | **GitHub**:  [skfsjrnfl](https://github.com/skfsjrnfl) |
+
+
+## Development Environment
+* Node.js(v16.16.0)
+* Database: Notion API
+* 서비스 배포 환경: [discloud](https://discloudbot.com/)
 ```
-{
-  "token": "<your bot token here>"
-}
+  "dependencies": {
+    "@notionhq/client": "^1.0.1",
+    "discord.js": "^14.8.0"
+  }
 ```
-4. Run the bot using node index.js
+## File Structure
+```
+hr-bot
+|-- README.md
+|-- assets
+|   `-- icon.png
+|-- command.js
+|-- config-dev.json
+|-- config.json
+|-- db_api.js
+|-- db_key.js
+|-- discloud.config
+|-- index.js
+|-- node_modules
+```
+
 ## Features
-### Team Generation
-Users can use the command !team to generate teams based on the number of people currently in the voice channel. The bot will only generate teams for even numbers of people, and will randomly assign team members.
+| Command | Details |
+|:---:|---|
+|!help| 아래 이미지와 같은 명령어 목록을 불러옵니다. <br><img src="https://user-images.githubusercontent.com/68142773/231148713-66f4097b-408e-4702-b941-5d9a5c0c726e.png" width = "300"/> |
+|!5vs5| 채널에 속해있는 모두에게 푸시 알림을 보내고, 참석 여부를 반응 버튼으로 체크합니다. |
+|!dice| 1~99 범위를 갖는 주사위를 굴립니다. |
+|!team| 현재 접속해 있는 음성채널의 인원들로 팀을 구성합니다. <br> <img src="https://user-images.githubusercontent.com/68142773/231149848-dd9cdba3-680c-4f6c-a225-5ef0cee9153e.png" width = "500"/> <br>cf. 이때, 1팀 승리 / 2팀 승리 버튼을 통해 승패를 기록하기 위해서는 !register 명령어를 먼저 입력해야 합니다. |
+|!register|음성 채널에 접속해있는 인원을 DB에 등록합니다.(약 1~2분 정도 소요)|
+|!showAll|DB에 저장된 모든 인원을 표시합니다.|
+|!show {name}|name에 해당하는 인원을 표시합니다.|
+|!top3|랭킹 상위 3인을 표시합니다.|
 
-### Dice Rolling
-Users can use the command !dice to roll a virtual die and receive a random number between 1 and 99.
-
-### Reroll Button
-When the bot generates teams, it will also send a message with two buttons to the text channel for voting. If users want to reroll the teams, they can click the "reroll" button, and the bot will generate new teams. The other buttons are used to vote for the winning team.
-
-### Help Command
-Users can use the command !help to get a list of available commands and their descriptions.
-
-## Code Structure
-The bot is built using the Discord.js library and consists of a single index.js file. The file defines a Client object, which connects to the Discord API and listens for various events such as message creation and button clicks. The main functionality of the bot is contained within the event listeners, which use the Discord.js library to interact with the Discord API and provide the desired functionality. The bot uses Discord's slash commands and buttons to interact with users.
-
-## Future Improvements
-Allow users to customize the number of teams and team size
-Add more games to generate teams for
-Implement error handling to handle edge cases
-Add logging to track user interactions and bot events
-## Acknowledgments
-[Discord.js](https://discord.js.org/) library
-[OpenAI](https://openai.com/) for training the ChatGPT language model used to generate this readme.
+## References
+* [Discord.js Docs](https://discord.js.org/)
+* [Notion API Docs](https://developers.notion.com/)
