@@ -89,7 +89,7 @@ insertNewUser = function(id, name){
       console.log(err.message);
     }
   });
-  const query = `INSERT INTO user(ID,NAME,WIN,LOSE,POWER,STREAK) VALUES(${id},"${name}",0,0,0,0)`;
+  const query = `INSERT INTO user(ID,NAME,WIN,LOSE,POWER,STREAK) VALUES(${id},"${name}",0,0,1000,0)`;
   db.run(query, function(err){
     if (err){
       console.log(err.message);
@@ -189,7 +189,6 @@ exports.getTop3 = async function (dir) {
     }
   });
   top3List=[];
-  console.log(user_data.length);
   if (user_data.length<3){
     for (i=0;i<user_data.length;i++){
       top3List.push(user_data[i]);
@@ -199,6 +198,10 @@ exports.getTop3 = async function (dir) {
         "NAME" : "no one",
         "POWER": 0
       });
+    }
+  }else{
+    for (i=0;i<3;i++){
+      top3List.push(user_data[i]);
     }
   }
   db.close();

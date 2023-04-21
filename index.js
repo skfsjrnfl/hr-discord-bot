@@ -269,7 +269,7 @@ client.on("interactionCreate", async (interaction) => {
       interaction.reply(
         `**${interaction.user.username}**님이 '2팀 승리 버튼'을 클릭했습니다.`
       );
-      COMMAND.moveTeam(waitingCh,teamBID,subChh);
+      COMMAND.moveTeam(waitingCh,teamBID,subCh);
       COMMAND.checkWin(teamBID,teamAID);
     }
 
