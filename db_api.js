@@ -1,11 +1,8 @@
-//Requirements
 const sqlite3 = require("sqlite3");
 let top3List = [];
 
 var exports = (module.exports = {});
 
-//Function
-//need to test
 exports.updateValue = async function (teamid, state) {
   const db = new sqlite3.Database(
     "./hr_db.db",
@@ -161,6 +158,7 @@ exports.getAllUserData = async function () {
     const percent = Math.round(
       (item["WIN"] / (item["LOSE"] + item["WIN"])) * 100
     );
+    percent.toFixed(1);
     allData.push({
       name: `${item["NAME"]}`,
       value: `${item["WIN"]} - ${item["LOSE"]} / ${percent}% / ${item["POWER"]} LP`,
