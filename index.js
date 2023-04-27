@@ -338,80 +338,97 @@ client.on("interactionCreate", async (interaction) => {
     }
   }
   if (interaction.isChannelSelectMenu) {
-    if (interaction.user.id != teamMaker) {
-      interaction.channel.send(
-        `명령어 입력 사용자, 주장만 선택할 수 있습니다.`
-      );
-    } else {
-      const choosenUserID = interaction.values[0];
-      let idx;
-      for (let i = 0; i < draftdata.length; i++) {
-        if (draftdata[i].ID == choosenUserID) {
-          idx = i;
-          break;
-        }
-      }
-      if (draftdata.length == currentMemberCount) {
-        teamALeader = draftdata[idx];
-        draftTeamA.push(draftdata[idx]);
-        interaction.channel.send(`1팀 주장: ${teamALeader.NAME}`);
-      } else if (draftdata.length == currentMemberCount - 1) {
-        teamBLeader = draftdata[idx];
-        draftTeamB.push(draftdata[idx]);
-        interaction.channel.send(`2팀 주장: ${teamBLeader.NAME}`);
-      } else if (draftdata.length % 2 == 0) {
-        draftTeamA.push(draftdata[idx]);
+    if (
+      draftdata.length == currentMemberCount ||
+      draftdata.length == currentMemberCount - 1
+    ) {
+      if (interaction.user.id != teamMaker) {
         interaction.channel.send(
-          `1  팀 주장 ${teamALeader.NAME}님이 ${draftdata[idx].NAME}님을 선택했습니다.`
+          `명령어 입력 사용자가 각 팀 주장을 뽑아야합니다.`
         );
-      } else {
-        draftTeamB.push(draftdata[idx]);
-        interaction.channel.send(
-          `2  팀 주장 ${teamBLeader.NAME}님이 ${draftdata[idx].NAME}님을 선택했습니다.`
-        );
-      }
-
-      if (draftTeamA.length != 0 && draftTeamB.length != 0) {
-        const draftEmbed = new EmbedBuilder()
-          .setColor(0x0099ff)
-          .setTitle("팀 드래프트🚀")
-          .setURL("https://youtu.be/k6FmEwkD6SQ")
-          .addFields(
-            {
-              name: "1️⃣팀",
-              value: `${draftTeamA.map((i) => i.NAME).join(", ")}`,
-              inline: true,
-            },
-            {
-              name: "LP 합계",
-              value: `${draftTeamA.reduce((a, b) => a + b.POWER, 0)}`,
-              inline: true,
-            },
-
-            { name: "\u200b", value: "\u200b" },
-            {
-              name: "2️⃣팀",
-              value: `${draftTeamB.map((i) => i.NAME).join(", ")}`,
-              inline: true,
-            },
-            {
-              name: "LP 합계",
-              value: `${draftTeamB.reduce((a, b) => a + b.POWER, 0)}`,
-              inline: true,
-            }
-          );
-        await interaction.channel.send({
-          embeds: [draftEmbed],
-        });
-      }
-      draftdata.splice(idx, 1);
-      await interaction.message.delete();
-      if (draftdata.length == 0) {
-        interaction.channel.send("팀구성 완료");
         return;
       }
-      await COMMAND.makeSelectMenu(draftdata, interaction);
+    } else if (draftdata.length % 2 == 0) {
+      if (interaction.user.id != teamALeader.ID) {
+        interaction.channel.send(`1팀 주장이 선택을 할 차례입니다.`);
+        return;
+      }
+    } else if (draftdata.length % 2 == 1) {
+      if (interaction.user.id != teamBLeader.ID) {
+        interaction.channel.send(`2팀 주장이 선택을 할 차례입니다.`);
+        return;
+      }
     }
+    //이거 check 함수로 빼기
+
+    const choosenUserID = interaction.values[0];
+    let idx;
+    for (let i = 0; i < draftdata.length; i++) {
+      if (draftdata[i].ID == choosenUserID) {
+        idx = i;
+        break;
+      }
+    }
+    if (draftdata.length == currentMemberCount) {
+      teamALeader = draftdata[idx];
+      draftTeamA.push(draftdata[idx]);
+      interaction.channel.send(`1팀 주장: ${teamALeader.NAME}`);
+    } else if (draftdata.length == currentMemberCount - 1) {
+      teamBLeader = draftdata[idx];
+      draftTeamB.push(draftdata[idx]);
+      interaction.channel.send(`2팀 주장: ${teamBLeader.NAME}`);
+    } else if (draftdata.length % 2 == 0) {
+      draftTeamA.push(draftdata[idx]);
+      interaction.channel.send(
+        `1  팀 주장 ${teamALeader.NAME}님이 ${draftdata[idx].NAME}님을 선택했습니다.`
+      );
+    } else {
+      draftTeamB.push(draftdata[idx]);
+      interaction.channel.send(
+        `2  팀 주장 ${teamBLeader.NAME}님이 ${draftdata[idx].NAME}님을 선택했습니다.`
+      );
+    }
+
+    if (draftTeamA.length != 0 && draftTeamB.length != 0) {
+      const draftEmbed = new EmbedBuilder()
+        .setColor(0x0099ff)
+        .setTitle("팀 드래프트🚀")
+        .setURL("https://youtu.be/k6FmEwkD6SQ")
+        .addFields(
+          {
+            name: "1️⃣팀",
+            value: `${draftTeamA.map((i) => i.NAME).join(", ")}`,
+            inline: true,
+          },
+          {
+            name: "LP 합계",
+            value: `${draftTeamA.reduce((a, b) => a + b.POWER, 0)}`,
+            inline: true,
+          },
+
+          { name: "\u200b", value: "\u200b" },
+          {
+            name: "2️⃣팀",
+            value: `${draftTeamB.map((i) => i.NAME).join(", ")}`,
+            inline: true,
+          },
+          {
+            name: "LP 합계",
+            value: `${draftTeamB.reduce((a, b) => a + b.POWER, 0)}`,
+            inline: true,
+          }
+        );
+      await interaction.channel.send({
+        embeds: [draftEmbed],
+      });
+    }
+    draftdata.splice(idx, 1);
+    await interaction.message.delete();
+    if (draftdata.length == 0) {
+      interaction.channel.send("팀구성 완료");
+      return;
+    }
+    await COMMAND.makeSelectMenu(draftdata, interaction);
   }
 });
 
