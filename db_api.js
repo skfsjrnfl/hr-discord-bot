@@ -226,7 +226,8 @@ exports.getTop3 = async function (desc) {
   return top3List;
 };
 
-exports.searchUser = async function (userName) {
+exports.searchUser = async function (userName, isName = true) {
+  const args = isName ? "NAME" : "ID";
   const db = new sqlite3.Database(
     "./hr_db.db",
     sqlite3.OPEN_READWRITE,
@@ -236,7 +237,7 @@ exports.searchUser = async function (userName) {
       }
     }
   );
-  const search_query = `SELECT * from user WHERE NAME = '${userName}'`;
+  const search_query = `SELECT * from user WHERE ${args} = '${userName}'`;
   const user_data = await new Promise((resolve) => {
     db.all(search_query, (err, rows) => {
       if (err) {

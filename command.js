@@ -10,6 +10,8 @@ const {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  StringSelectMenuOptionBuilder,
+  StringSelectMenuBuilder,
 } = require("discord.js");
 
 const DB = require("./db_api.js");
@@ -69,7 +71,7 @@ exports.findEmptyChannel = function (interaction) {
   interaction.guild.channels.cache.forEach((k) => {
     // channel type 2: voice
     if (k.type == 2) {
-      if (k.id!=interaction.guild.afkChannelId){
+      if (k.id != interaction.guild.afkChannelId) {
         if (k.members.size == 0) {
           channel_list.push(k);
           return channel_list;
@@ -100,3 +102,54 @@ exports.checkWin = async function (winner, loser) {
 exports.searchUser = async function (userName) {
   return DB.searchUser(userName);
 };
+
+exports.getUserInCurrentChannel = async function (message) {
+  let channel = await message.guild.channels.fetch(
+    message.member.voice.channel.id
+  );
+  if (channel.members.size % 2 === 1) {
+    return null;
+  }
+  let userList = [];
+
+  for (let item of channel.members) {
+    const currentUserData = await DB.searchUser(item[0], false);
+    userList.push(...currentUserData);
+  }
+  return userList;
+};
+
+exports.makeSelectMenu = async function (userList, message) {
+  let selectList = [];
+  for (let i = 0; i < userList.length; i++) {
+    let tempData = new StringSelectMenuOptionBuilder()
+      .setLabel(userList[i].NAME)
+      .setDescription(
+        `W/L: ${userList[i].WIN}/${userList[i].LOSE} LP:${userList[i].POWER}`
+      )
+      .setValue(`${userList[i].ID}`);
+    selectList.push(tempData);
+  }
+  const selectMenu = new StringSelectMenuBuilder()
+    .setCustomId("drafter")
+    .setPlaceholder("")
+    .addOptions(selectList);
+  const row = new ActionRowBuilder().addComponents(selectMenu);
+  await message.reply({ components: [row] });
+};
+
+// exports.makeDraft = async function (message) {
+//   let teamdata = await getUserInCurrentChannel(message);
+//   if (teamdata === null) {
+//     message.channel.send(
+//       "현재 채널 접속 인원이 홀수입니다. 짝수 인원으로 맞춰주세요!"
+//     );
+//     return;
+//   }
+//   let userCount = teamdata.length;
+//   // while (userCount > 0) {
+//   //   await COMMAND.makeSelectMenu(teamdata, message);
+//   //   userCount--;
+//   // }
+//   // 결과보이기
+// };
