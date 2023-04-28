@@ -145,28 +145,6 @@ client.on("messageCreate", async (message) => {
       break;
   }
 
-  if (command == "low3") {
-    const low3Data = await DB.getTop3(false);
-    const exampleEmbed = new EmbedBuilder()
-      .setColor(0x0099ff)
-      .setTitle("Top 3👑")
-      .addFields(
-        {
-          name: "🥇 뒤에서 1️⃣등",
-          value: `${low3Data[0]["NAME"]} ${low3Data[0]["POWER"]} 롤투력`,
-        },
-        {
-          name: "🥈 뒤에서 2️⃣등 🫘",
-          value: `${low3Data[1]["NAME"]} ${low3Data[1]["POWER"]} 롤투력`,
-        },
-        {
-          name: "🥉 뒤에서 3️⃣등",
-          value: `${low3Data[2]["NAME"]} ${low3Data[2]["POWER"]} 롤투력`,
-        }
-      );
-    message.reply({ embeds: [exampleEmbed] });
-  }
-
   if (command == "search") {
     const userData = await COMMAND.searchUser(args);
     const userDataEmbed = new EmbedBuilder()
