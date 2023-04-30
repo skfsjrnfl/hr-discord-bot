@@ -10,7 +10,7 @@ module.exports ={
         const removeprefix = message.content.slice(prefix.length);
 		const command = message.client.commands.get(removeprefix);
 		if (!command) {
-			console.error(`No command matching ${command} was found.`);
+			//console.error(`No command matching ${command} was found.`);
 			return;
 		}
 		try {
