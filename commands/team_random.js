@@ -1,6 +1,6 @@
 const {teamWindow} = require("../components/team_window.js");
 const Stage = require("../classes/stage.js");
-const { Team } = require("discord.js");
+
 IsAuthorInVoiceChannel= function(message){
   if (message.member.voice.channel){
     return 1;
@@ -34,7 +34,13 @@ FindEmptyVoiceChannel = function (interaction) {
 };
 
 MakeStage = function(message, mainChannel){
-  let stage = new Stage(message.member,mainChannel,mainChannel.members);
+  let stage = new Stage(message.guildId,message.member,mainChannel,message.channel,mainChannel.members);
+  return stage;
+}
+
+IsExistStage = function(message){
+  const client = message.client;
+  const stage = client.stages.get(message.guildId);
   return stage;
 }
 
@@ -43,6 +49,11 @@ module.exports = {
 	async execute(message) {
     if (!IsAuthorInVoiceChannel(message)){
       message.reply("음성 채널에 입장한 뒤 사용해주세요!");
+      return;
+    }
+
+    if (IsExistStage(message)){
+      message.reply("기존 스테이지를 종료한 뒤 호출해주세요!");
       return;
     }
 
@@ -60,13 +71,13 @@ module.exports = {
       return;
     }
     let stage = MakeStage(message,main_channel);
+    stage.setSubChannel(sub_channel);
     stage.makeTeamRandom();
-    //console.log(stage);
+    const client = message.client;
+    client.stages.set(stage.guildId, stage);
     const teamAName = stage.getTeamAName();
     const teamBName = stage.getTeamBName();
-    console.log(teamAName);
-    console.log(teamBName);
-    message.channel.send(teamWindow(teamAName,teamBName,2384,7542));
+    message.channel.send(teamWindow(teamAName,teamBName,"구현 예정","구현 예정"));
     return;
 	},
 };

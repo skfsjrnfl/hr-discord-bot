@@ -1,16 +1,20 @@
+const {stageInfo} = require("../components/stage_info.js");
+
 //need to verify members are even!!
 class Stage{
-    constructor(host,mainChannel,members){
+    constructor(guildId,host,mainVoiceChannel,textChannel,members){
+        this.guildId=guildId;
         this.host=host;
-        this.mainChannel=mainChannel;
-        this.subChannel=null;
+        this.mainVoiceChannel=mainVoiceChannel;
+        this.textChannel=textChannel;
+        this.subVoiceChannel=null;
         this.members=members;
         this.teamA=[];
         this.teamB=[];
     }
 
-    setSubChannel(subChannel){
-        this.subChannel=subChannel;
+    setSubChannel(subVoiceChannel){
+        this.subVoiceChannel=subVoiceChannel;
     }
 
     makeTeamRandom(){
@@ -32,6 +36,16 @@ class Stage{
         for (let i=teamSize;i<allSize;i++){
             this.teamB.push(this.members.at(idxArray[i][0]));
         }
+        return;
+    }
+
+    getMembersName(){
+        const size=this.members.size;
+        let names=[];
+        for (let i=0;i<size;i++){
+            names.push(this.members.at(i).displayName);
+        }
+        return names;
     }
 
     getTeamAName(){
@@ -50,6 +64,12 @@ class Stage{
             names.push(this.teamB[i].displayName);
         }
         return names;
+    }
+
+    showStageInfo(){
+        const info=stageInfo(this);
+        this.textChannel.send(info);
+        return;
     }
 }
 module.exports = Stage;

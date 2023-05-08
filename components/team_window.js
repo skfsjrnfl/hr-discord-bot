@@ -21,14 +21,6 @@ module.exports = {
 
         let teamBtnRow = new ActionRowBuilder().setComponents(
             new ButtonBuilder()
-              .setCustomId("team1winBtn")
-              .setLabel("1️⃣팀 승리")
-              .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
-              .setCustomId("team2winBtn")
-              .setLabel("2️⃣팀 승리")
-              .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
               .setCustomId("rerollBtn")
               .setLabel("🎲리롤🎲")
               .setStyle(ButtonStyle.Danger),
