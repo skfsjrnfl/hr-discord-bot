@@ -71,5 +71,21 @@ class Stage{
         this.textChannel.send(info);
         return;
     }
+
+    moveTeamsEachChannel(){
+        const size= this.teamA.length;
+        for (let i=0;i<size;i++){
+            this.teamA[i].voice.setChannel(this.mainVoiceChannel);
+            this.teamB[i].voice.setChannel(this.subVoiceChannel);
+        }
+    }
+
+    moveAllMainChannel(){
+        const size= this.members;
+        for (let i=0;i<size;i++){
+            this.members[i].voice.setChannel(this.mainVoiceChannel);
+        }
+    }
+
 }
 module.exports = Stage;

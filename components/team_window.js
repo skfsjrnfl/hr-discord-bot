@@ -27,7 +27,11 @@ module.exports = {
             new ButtonBuilder()
               .setCustomId("startBtn")
               .setLabel("🏃‍♂️시작🏃‍♂️")
-              .setStyle(ButtonStyle.Success)
+              .setStyle(ButtonStyle.Success),
+              new ButtonBuilder()
+              .setCustomId("stopBtn")
+              .setLabel("🛑중단🛑")
+              .setStyle(ButtonStyle.Primary)
           );
         return { embeds: [teamEmbed], components: [teamBtnRow] };
     }

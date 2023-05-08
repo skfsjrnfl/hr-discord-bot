@@ -24,6 +24,7 @@ const client = new Client({
 });
 
 client.commands = new Collection();
+client.interactions = new Collection();
 client.stages = new Collection();
 
 //resister commands to bot
@@ -34,6 +35,19 @@ for (const file of commandFiles) {
 	const command = require(filePath);
 	if ('name' in command && 'execute' in command) {
 		client.commands.set(command.name, command);
+	} else {
+		console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+	}
+}
+
+//resister interactions to bot
+const interactionsPath = path.join(__dirname, 'interactions');
+const interactionFiles = fs.readdirSync(interactionsPath).filter(file => file.endsWith('.js'));
+for (const file of interactionFiles) {
+	const filePath = path.join(interactionsPath, file);
+	const command = require(filePath);
+	if ('name' in command && 'execute' in command) {
+		client.interactions.set(command.name, command);
 	} else {
 		console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
 	}
