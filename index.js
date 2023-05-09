@@ -198,33 +198,7 @@ client.on("interactionCreate", async (interaction) => {
 		}
 	}
 
-  if (interaction.isButton()) {
-    // team 명령어 생성한 사람만 버튼 누를수 있게 분기 추가
-    if (interaction.member.user.id != teamMaker) {
-      interaction.channel.send(
-        "명령어를 실행한 유저만 버튼을 동작할 수 있습니다."
-      );
-      return;
-    }
-    if (interaction.component.data.custom_id === "rerollBtn") {
-      interaction.reply(
-        `**${interaction.user.username}**님이 '리롤 버튼'을 클릭했습니다.`
-      );
-      if (interaction.member.voice.channel !== waitingCh) {
-        interaction.channel.send("내전 대기자만 누를 수 있습니다!");
-      } else {
-        teamdata = await COMMAND.makeTeam(interaction);
-        if (teamdata != null) {
-          await interaction.message.delete();
-          [teamAName, teamBName, teamAID, teamBID] = teamdata;
-          await TeamWindow(interaction.channel);
-        } else {
-          interaction.channel.send(
-            "현재 채널 접속 인원이 홀수입니다. 짝수 인원으로 맞춰주세요!"
-          );
-        }
-      }
-    } else if (interaction.component.data.custom_id === "startBtn") {
+  if (interaction.component.data.custom_id === "startBtn") {
       if (interaction.member.voice.channel !== waitingCh) {
         interaction.reply("내전 대기자만 누를 수 있습니다!");
       } else {
