@@ -1,21 +1,40 @@
 const {stageInfo} = require("../components/stage_info.js");
+const DB = require("../db_api.js");
 
 //need to verify members are even!!
 class Stage{
-    constructor(guildId,host,mainVoiceChannel,textChannel,members){
+    constructor(guildId,host,mainVoiceChannel,subVoiceChannel,textChannel,members){
         this.guildId=guildId;
         this.host=host;
         this.mainVoiceChannel=mainVoiceChannel;
+        this.subVoiceChannel=subVoiceChannel;
         this.textChannel=textChannel;
-        this.subVoiceChannel=null;
+
         this.members=members;
         this.teamA=[];
         this.teamB=[];
+        this.teamAName=null;
+        this.teamBName=null;
+        this.teamAPower=null;
+        this.teamBPower=null;
     }
 
-    setSubChannel(subVoiceChannel){
-        this.subVoiceChannel=subVoiceChannel;
+    setTeamNames(){
+        const teamSize=this.teamA.length;
+        let names=[];
+        for (let i=0;i<teamSize;i++){
+            names.push(this.teamA[i].displayName);
+        }
+        this.teamAName=names.join(", ");
+
+        names=[];
+        for (let i=0;i<teamSize;i++){
+            names.push(this.teamB[i].displayName);
+        }
+        this.teamBName=names.join(", ");
+        return;
     }
+
 
     makeTeamRandom(){
         const allSize=this.members.size;
@@ -36,6 +55,7 @@ class Stage{
         for (let i=teamSize;i<allSize;i++){
             this.teamB.push(this.members.at(idxArray[i][0]));
         }
+        this.setTeamNames();
         return;
     }
 
@@ -44,24 +64,6 @@ class Stage{
         let names=[];
         for (let i=0;i<size;i++){
             names.push(this.members.at(i).displayName);
-        }
-        return names;
-    }
-
-    getTeamAName(){
-        const teamSize=this.teamA.length;
-        let names=[];
-        for (let i=0;i<teamSize;i++){
-            names.push(this.teamA[i].displayName);
-        }
-        return names;
-    }
-
-    getTeamBName(){
-        const teamSize=this.teamB.length;
-        let names=[];
-        for (let i=0;i<teamSize;i++){
-            names.push(this.teamB[i].displayName);
         }
         return names;
     }
@@ -81,11 +83,41 @@ class Stage{
     }
 
     moveAllMainChannel(){
-        const size= this.members;
+        const size= this.members.size;
         for (let i=0;i<size;i++){
             this.members[i].voice.setChannel(this.mainVoiceChannel);
         }
     }
 
+    async resisterMembersToDB(){
+        const size= this.members.size;
+        for (let i=0;i<size;i++){
+            let data =await DB.getUser(this.guildId, this.members.at(i).id);
+            if (!data){
+                await DB.insertUser(this.guildId, this.members.at(i).id, this.members.at(i).displayName);
+            }
+        }
+        return;
+    }
+
+    async getTeamAPower(){
+        const size= this.teamA.length;
+        let totalPower=0;
+        for (let i=0;i<size;i++){
+            let data =await DB.getUser(this.guildId, this.teamA[i].id);
+            totalPower+=data["POWER"];
+        }
+        return totalPower;
+    }
+
+    async getTeamBPower(){
+        const size= this.teamB.length;
+        let totalPower=0;
+        for (let i=0;i<size;i++){
+            let data =await DB.getUser(this.guildId, this.teamB[i].id);
+            totalPower+=data["POWER"];
+        }
+        return totalPower;
+    }
 }
 module.exports = Stage;

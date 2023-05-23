@@ -1,4 +1,4 @@
-const {teamWindow} = require("../components/team_window.js");
+const {teamBuildingWindow} = require("../components/team_building_window.js");
 const Stage = require("../classes/stage.js");
 
 IsAuthorInVoiceChannel= function(message){
@@ -33,8 +33,8 @@ FindEmptyVoiceChannel = function (interaction) {
   return null;
 };
 
-MakeStage = function(message, mainChannel){
-  let stage = new Stage(message.guildId,message.member,mainChannel,message.channel,mainChannel.members);
+MakeStage = function(message, mainChannel, subChannel){
+  let stage = new Stage(message.guildId,message.member,mainChannel,subChannel,message.channel,mainChannel.members);
   return stage;
 }
 
@@ -70,14 +70,16 @@ module.exports = {
       message.reply("여분의 빈 음성 채널이 필요해요!");
       return;
     }
-    let stage = MakeStage(message,main_channel);
-    stage.setSubChannel(sub_channel);
+    let stage = MakeStage(message,main_channel, sub_channel);
     stage.makeTeamRandom();
+    stage.resisterMembersToDB();
     const client = message.client;
     client.stages.set(stage.guildId, stage);
-    const teamAName = stage.getTeamAName();
-    const teamBName = stage.getTeamBName();
-    message.channel.send(teamWindow(teamAName,teamBName,"구현 예정","구현 예정"));
+    const teamAName = stage.teamAName;
+    const teamBName = stage.teamBName;
+    const teamAPower = await stage.getTeamAPower();
+    const teamBPower = await stage.getTeamBPower();
+    message.channel.send(teamBuildingWindow(teamAName,teamBName,teamAPower,teamBPower));
     return;
 	},
 };

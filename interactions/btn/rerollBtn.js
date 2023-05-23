@@ -1,4 +1,4 @@
-const {teamWindow} = require("../components/team_window.js");
+const {teamBuildingWindow} = require("../../components/team_building_window.js");
 module.exports = {
 	name:"rerollBtn",
 	async execute(interaction) {
@@ -11,7 +11,9 @@ module.exports = {
 		stage.makeTeamRandom();
         const teamAName = stage.getTeamAName();
         const teamBName = stage.getTeamBName();
-        interaction.reply(teamWindow(teamAName,teamBName,"구현 예정","구현 예정"));
+        const teamAPower = await stage.getTeamAPower();
+        const teamBPower = await stage.getTeamBPower();
+        interaction.reply(teamBuildingWindow(teamAName,teamBName,teamAPower,teamBPower));
         interaction.message.delete();
 		return;
 	},

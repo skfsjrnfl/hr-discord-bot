@@ -24,8 +24,9 @@ const client = new Client({
 });
 
 client.commands = new Collection();
-client.interactions = new Collection();
-client.stages = new Collection();
+client.btnInteractions = new Collection();
+client.smInteractions = new Collection();
+client.waitingRooms = new Collection();
 
 //resister commands to bot
 const commandsPath = path.join(__dirname, 'commands');
@@ -41,15 +42,27 @@ for (const file of commandFiles) {
 }
 
 //resister interactions to bot
-const interactionsPath = path.join(__dirname, 'interactions');
-const interactionFiles = fs.readdirSync(interactionsPath).filter(file => file.endsWith('.js'));
-for (const file of interactionFiles) {
-	const filePath = path.join(interactionsPath, file);
-	const command = require(filePath);
-	if ('name' in command && 'execute' in command) {
-		client.interactions.set(command.name, command);
+const btnInteractionsPath = path.join(__dirname, 'interactions/btn');
+const btnInteractionFiles = fs.readdirSync(btnInteractionsPath).filter(file => file.endsWith('.js'));
+for (const file of btnInteractionFiles) {
+	const filePath = path.join(btnInteractionsPath, file);
+	const interaction = require(filePath);
+	if ('name' in interaction && 'execute' in interaction) {
+		client.btnInteractions.set(interaction.name, interaction);
 	} else {
-		console.log(`[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`);
+		console.log(`[WARNING] The interaction at ${filePath} is missing a required "data" or "execute" property.`);
+	}
+}
+
+const smInteractionsPath = path.join(__dirname, 'interactions/selectMenu');
+const smInteractionFiles = fs.readdirSync(smInteractionsPath).filter(file => file.endsWith('.js'));
+for (const file of smInteractionFiles) {
+	const filePath = path.join(smInteractionsPath, file);
+	const interaction = require(filePath);
+	if ('name' in interaction && 'execute' in interaction) {
+		client.smInteractions.set(interaction.name, interaction);
+	} else {
+		console.log(`[WARNING] The interaction at ${filePath} is missing a required "data" or "execute" property.`);
 	}
 }
 

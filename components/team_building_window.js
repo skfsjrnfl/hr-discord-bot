@@ -6,7 +6,7 @@ const{
 } = require("discord.js");
 
 module.exports = {
-    teamWindow(teamAName, teamBName, teamAPower, teamBPower) {
+    teamBuildingWindow(teamAName, teamBName, teamAPower, teamBPower) {
         const teamEmbed = new EmbedBuilder()
         .setColor(0x0099ff)
         .setTitle("팀 구성 결과🚀")
@@ -31,7 +31,7 @@ module.exports = {
               new ButtonBuilder()
               .setCustomId("stopBtn")
               .setLabel("🛑중단🛑")
-              .setStyle(ButtonStyle.Primary)
+              .setStyle(ButtonStyle.Secondary)
           );
         return { embeds: [teamEmbed], components: [teamBtnRow] };
     }

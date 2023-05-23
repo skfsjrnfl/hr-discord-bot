@@ -75,7 +75,7 @@ exports.updateValue = async function (teamid, state) {
   db.close();
 };
 
-insertNewUser = function (id, name) {
+exports.insertUser = function (guildID, id, name) {
   const db = new sqlite3.Database(
     "./hr_db.db",
     sqlite3.OPEN_READWRITE,
@@ -85,7 +85,7 @@ insertNewUser = function (id, name) {
       }
     }
   );
-  const query = `INSERT INTO user(ID,NAME,WIN,LOSE,POWER,STREAK) VALUES(${id},"${name}",0,0,1000,0)`;
+  const query = `INSERT INTO user(GUILDID,ID,NAME,WIN,LOSE,POWER,STREAK) VALUES(${guildID},${id},"${name}",0,0,1000,0)`;
   db.run(query, function (err) {
     if (err) {
       console.log(err.message);
@@ -94,7 +94,7 @@ insertNewUser = function (id, name) {
   db.close();
 };
 
-getUser = async function (id, name) {
+exports.getUser = async function (guildID, id) {
   const db = new sqlite3.Database(
     "./hr_db.db",
     sqlite3.OPEN_READWRITE,
@@ -104,7 +104,7 @@ getUser = async function (id, name) {
       }
     }
   );
-  const find_query = `SELECT * from user WHERE ID=${id}`;
+  const find_query = `SELECT * from user WHERE GUILDID=${guildID} AND ID=${id}`;
   const user_data = await new Promise((resolve) => {
     db.get(find_query, (err, rows) => {
       if (err) {
@@ -115,12 +115,7 @@ getUser = async function (id, name) {
     });
   });
   db.close();
-  if (user_data != undefined) {
-    return user_data;
-  } else {
-    insertNewUser(id, name);
-    return { ID: id, NAME: name, WIN: 0, LOSE: 0, POWER: 1000, STREAK: 0 };
-  }
+  return user_data;
 };
 
 exports.calculTeamValue = async function (teamIDs, teamNames) {
