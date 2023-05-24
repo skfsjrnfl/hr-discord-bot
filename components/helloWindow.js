@@ -19,11 +19,11 @@ module.exports = {
         
         let btnRow = new ActionRowBuilder().setComponents(
             new ButtonBuilder()
-              .setCustomId("RandomBtn")
+              .setCustomId("randomBtn")
               .setLabel("Random")
               .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
-              .setCustomId("DraftBtn")
+              .setCustomId("draftBtn")
               .setLabel("Draft")
               .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()

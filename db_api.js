@@ -3,7 +3,7 @@ let top3List = [];
 
 var exports = (module.exports = {});
 
-exports.updateValue = async function (teamid, state) {
+exports.OpenDB = async function () {
   const db = new sqlite3.Database(
     "./hr_db.db",
     sqlite3.OPEN_READWRITE,
@@ -13,66 +13,21 @@ exports.updateValue = async function (teamid, state) {
       }
     }
   );
-  let ori_data = [];
-  for (let i = 0; i < teamid.length; i++) {
-    const find_query = `SELECT * from user WHERE ID=${teamid[i]}`;
-    const user_data = await new Promise((resolve) => {
-      db.get(find_query, (err, rows) => {
-        if (err) {
-          resolve({ error: "error message" });
-        } else {
-          resolve(rows);
-        }
-      });
-    });
-    ori_data.push(user_data);
-  }
+  return db;
+}
 
-  for (let i = 0; i < teamid.length; i++) {
-    bonus = 1;
-    next_win = ori_data[i]["WIN"];
-    next_lose = ori_data[i]["LOSE"];
-    next_power = ori_data[i]["POWER"];
-    next_streak = ori_data[i]["STREAK"];
-    if (state == "win") {
-      next_win++;
-      if (next_streak < 0) {
-        next_streak = 1;
-      } else {
-        next_streak++;
-      }
-      if (2 <= next_streak && next_streak <= 3) {
-        bonus = 2;
-      } else if (next_streak == 4) {
-        bonus = 3;
-      } else if (next_streak >= 5) {
-        bonus = 4;
-      }
-      next_power += bonus;
-    } else {
-      next_lose++;
-      if (next_streak > 0) {
-        next_streak = -1;
-      } else {
-        next_streak--;
-      }
-      if (-3 <= next_streak && next_streak <= -2) {
-        bonus = 2;
-      } else if (next_streak == -4) {
-        bonus = 3;
-      } else if (next_streak <= -5) {
-        bonus = 4;
-      }
-      next_power -= bonus;
-    }
-    const update_query = `UPDATE user SET WIN =${next_win}, LOSE =${next_lose}, POWER =${next_power}, STREAK =${next_streak}  WHERE ID=${teamid[i]}`;
-    db.run(update_query, function (err) {
-      if (err) {
-        console.log(err.message);
-      }
-    });
-  }
+exports.CloseDB = async function (db){
   db.close();
+  return;
+} 
+
+exports.updateUserValue = async function (db, guildID, id ,win, lose, power, streak) {
+  const update_query = `UPDATE user SET WIN =${win}, LOSE =${lose}, POWER =${power}, STREAK =${streak}  WHERE GUILDID=${guildID} AND ID=${id}`;
+  db.run(update_query, function (err) {
+    if (err) {
+      console.log(err.message);
+    }
+  });
 };
 
 exports.insertUser = function (guildID, id, name) {
@@ -116,15 +71,6 @@ exports.getUser = async function (guildID, id) {
   });
   db.close();
   return user_data;
-};
-
-exports.calculTeamValue = async function (teamIDs, teamNames) {
-  var teampower = 0;
-  for (i = 0; i < teamIDs.length; i++) {
-    user_data = await getUser(teamIDs[i], teamNames[i]);
-    teampower += user_data["POWER"];
-  }
-  return teampower;
 };
 
 exports.getAllUserData = async function () {

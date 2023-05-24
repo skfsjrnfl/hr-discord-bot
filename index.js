@@ -6,6 +6,7 @@ const {
   Collection,
   GatewayIntentBits,
   Partials,
+  Events,
 } = require("discord.js");
 const DB = require("./db_api.js");
 const COMMAND = require("./command.js");
@@ -79,7 +80,14 @@ for (const file of eventFiles) {
 		client.on(event.name, (...args) => event.execute(...args));
 	}
 }
-
+// client.once(Events.ClientReady,(c)=>{
+//   c.guilds.cache.at(1).roles.create({
+//     name:"Super Cool Blue People",
+//     reason:"test",
+//   }).then(console.log)
+//   .catch(console.error);
+//  }
+// )
 //Run Bot
 client.login(token);
 /*

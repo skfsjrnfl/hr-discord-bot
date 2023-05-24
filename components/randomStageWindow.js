@@ -6,32 +6,36 @@ const{
 } = require("discord.js");
 
 module.exports = {
-    teamBuildingWindow(teamAName, teamBName, teamAPower, teamBPower) {
+    RandomStageWindow(teamAName, teamBName, teamAPower, teamBPower) {
         const teamEmbed = new EmbedBuilder()
         .setColor(0x0099ff)
         .setTitle("팀 구성 결과🚀")
         .setURL("https://youtu.be/k6FmEwkD6SQ")
         .addFields(
-          { name: "1️⃣팀", value: teamAName.join(", "), inline: true },
-          { name: "LP 합계", value: `${teamAPower}`, inline: true },
+          { name: "1️⃣팀", value: teamAName, inline: true },
+          { name: "Total LP", value: `${teamAPower}`, inline: true },
           { name: "\u200b", value: "\u200b" },
-          { name: "2️⃣팀", value: teamBName.join(", "), inline: true },
-          { name: "LP 합계", value: `${teamBPower}`, inline: true }
+          { name: "2️⃣팀", value: teamBName, inline: true },
+          { name: "Total LP", value: `${teamBPower}`, inline: true }
         );
 
         let teamBtnRow = new ActionRowBuilder().setComponents(
             new ButtonBuilder()
               .setCustomId("rerollBtn")
-              .setLabel("🎲리롤🎲")
-              .setStyle(ButtonStyle.Danger),
+              .setLabel("🎲Reroll🎲")
+              .setStyle(ButtonStyle.Primary),
             new ButtonBuilder()
               .setCustomId("startBtn")
-              .setLabel("🏃‍♂️시작🏃‍♂️")
+              .setLabel("🏃‍♂️Start🏃‍♂️")
               .setStyle(ButtonStyle.Success),
-              new ButtonBuilder()
+            new ButtonBuilder()
               .setCustomId("stopBtn")
-              .setLabel("🛑중단🛑")
-              .setStyle(ButtonStyle.Secondary)
+              .setLabel("Stop")
+              .setStyle(ButtonStyle.Danger),
+            new ButtonBuilder()
+              .setCustomId("backBtn")
+              .setLabel("Back")
+              .setStyle(ButtonStyle.Secondary),
           );
         return { embeds: [teamEmbed], components: [teamBtnRow] };
     }

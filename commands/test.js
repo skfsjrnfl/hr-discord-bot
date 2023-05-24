@@ -1,5 +1,4 @@
 const WaitingRoom = require("../classes/waitingRoom.js");
-const {helloWindow} = require("../components/helloWindow.js");
 
 IsAuthorInVoiceChannel= function(message){
     if (message.member.voice.channel){
@@ -60,7 +59,11 @@ module.exports = {
     let waitingRoom = new WaitingRoom(message.guildId,message.member,main_channel,sub_channel,message.channel,main_channel.members);
     const client = message.client;
     client.waitingRooms.set(waitingRoom.guildId, waitingRoom);
+    waitingRoom.SynchronizeWithDB();
     waitingRoom.SendHelloWindow();
     return;
 	},
 };
+//team은 waiting에 유지
+//만드는 방식만 바꾸기
+//stage->makeTeam
