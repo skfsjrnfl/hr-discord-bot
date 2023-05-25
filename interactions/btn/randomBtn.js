@@ -16,7 +16,7 @@ module.exports = {
 
 		waitingRoom.SetStageRandom();
         waitingRoom.MakeTeam();
-		waitingRoom.SetTeam();
+		waitingRoom.SetTeamInfo();
         waitingRoom.SendStageWindow();
 		interaction.message.delete();
 		return;

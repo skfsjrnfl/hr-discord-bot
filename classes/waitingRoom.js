@@ -14,7 +14,8 @@ class WaitingRoom{
         this.textChannel=textChannel;
 
         this.players=members;
-        
+        this.draftPlayers=[];
+
         this.stage=new RandomStage();
 
         this.teamA=[];
@@ -36,8 +37,18 @@ class WaitingRoom{
         return;
     }
 
+    CopyPlayer(){
+        const size=this.players.size;
+        this.draftPlayers=[];
+        for (let i=0;i<size;i++){
+            this.draftPlayers.push(this.players.at(i));
+        }
+        return;
+    }
+
     SetStageDraft(){
         this.stage=new DraftStage(this);
+        this.CopyPlayer();
         return;
     }
 
@@ -55,6 +66,32 @@ class WaitingRoom{
         const target = this.mainVoiceChannel.members.get(targetId);
         this.players.set(targetId,target);
         return;
+    }
+
+    AddPlayerToTeamA(targetId){
+        const size= this.draftPlayers.length;
+        for (let i=0;i<size;i++){
+            let target=this.draftPlayers[i];
+            if (target==undefined) continue;
+            if (this.draftPlayers[i].id==targetId){
+                this.teamA.push(this.draftPlayers[i]);
+                delete this.draftPlayers[i];
+                return;
+            }
+        }
+    }
+
+    AddPlayerToTeamB(targetId){
+        const size= this.draftPlayers.length;
+        for (let i=0;i<size;i++){
+            let target=this.draftPlayers[i];
+            if (target==undefined) continue;
+            if (this.draftPlayers[i].id==targetId){
+                this.teamB.push(this.draftPlayers[i]);
+                delete this.draftPlayers[i];
+                return;
+            }
+        }
     }
 
     RemovePlayer(targetId){
@@ -151,17 +188,6 @@ class WaitingRoom{
             DB.updateUserValue(db, this.guildId, this.players.at(i).user.id, this.players.at(i).win, this.players.at(i).lose, this.players.at(i).power, this.players.at(i).streak);
         }
         await DB.CloseDB(db);
-    }
-
-    SetTeam(){
-        this.teamA=[];
-        this.teamB=[];
-        const size=this.players.size/2;
-        for (let i=0;i<size;i++){
-            this.teamA.push(this.players.at(this.teamList[0][i][0]));
-            this.teamB.push(this.players.at(this.teamList[1][i][0]));
-        }
-        this.SetTeamInfo();
     }
 
     MakeTeam(){
