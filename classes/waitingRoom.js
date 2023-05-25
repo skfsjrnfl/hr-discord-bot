@@ -61,6 +61,14 @@ class WaitingRoom{
         return this.players.size%2 ? 0 : 1;
     }
 
+    CheckTeamALeaderByID(targetId){
+        return this.teamA[0].user.id==targetId ? 1 : 0;
+    }
+
+    CheckTeamBLeaderByID(targetId){
+        return this.teamB[0].user.id==targetId ? 1 : 0;
+    }
+
     //Control member
     AddPlayer(targetId){
         const target = this.mainVoiceChannel.members.get(targetId);

@@ -7,6 +7,8 @@ const{
     StringSelectMenuOptionBuilder,
 } = require("discord.js");
 
+const {DraftStageWindow} =require("./draftStageWindow.js");
+
 module.exports = {
     chooseLeaderWindow(cnt, waitingRoom) {
         const embed = new EmbedBuilder()
@@ -14,10 +16,9 @@ module.exports = {
         
         const size=waitingRoom.draftPlayers.length;
         if (size==cnt){
-            embed.setTitle("Making Team Complete!");
-            waitingRoom.textChannel.send({embeds: [embed]});
+            //waitingRoom.textChannel.send({content:"Making Team Complete!"});
             waitingRoom.SetTeamInfo();
-            return;
+            return DraftStageWindow(waitingRoom.teamAName, waitingRoom.teamBName, waitingRoom.teamAPower, waitingRoom.teamBPower);
         }else{
             const selectDraftTeamMenu = new StringSelectMenuBuilder()
             let contents;

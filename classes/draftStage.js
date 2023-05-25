@@ -1,5 +1,5 @@
-const {chooseLeaderWindow} = require("../components/chooseLeaderWindow");
-
+const {chooseLeaderWindow} = require("../components/chooseLeaderWindow.js");
+const {DraftStageWindow } =require("../components/draftStageWindow.js");
 class DraftStage{
     constructor(waitingRoom){
         this.type="Draft";
@@ -16,7 +16,7 @@ class DraftStage{
     }
 
     MakeStageWindow(teamAName, teamBName, teamAPower, teamBPower){
-        return RandomStageWindow(teamAName, teamBName, teamAPower, teamBPower);
+        return DraftStageWindow(teamAName, teamBName, teamAPower, teamBPower);
     }
 }
 module.exports = DraftStage;
