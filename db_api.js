@@ -112,7 +112,7 @@ exports.getAllUserData = async function () {
   return allData;
 };
 
-exports.getTop3 = async function (desc) {
+exports.getTop3 = async function (guildID,desc) {
   const db = new sqlite3.Database(
     "./hr_db.db",
     sqlite3.OPEN_READWRITE,
@@ -122,7 +122,7 @@ exports.getTop3 = async function (desc) {
       }
     }
   );
-  const find_query = `SELECT * from user`;
+  const find_query = `SELECT * from user WHERE GUILDID=${guildID}`;
   const user_data = await new Promise((resolve) => {
     db.all(find_query, (err, rows) => {
       if (err) {
