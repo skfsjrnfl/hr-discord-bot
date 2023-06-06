@@ -37,7 +37,7 @@ IsExistWaitingRoom = function(message){
 }
 
 module.exports = {
-	name:"test",
+	name:"team",
 	async execute(message) {
     if (!IsAuthorInVoiceChannel(message)){
       message.reply("This command is available after entering the voice channel!");
